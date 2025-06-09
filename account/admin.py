@@ -26,3 +26,6 @@ class UserModelAdmin(UserAdmin):
         ),
         (_("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
+    list_display = ("username", "email", "first_name", "last_name", "is_staff", "is_agent")
+    list_filter = ("is_staff", "is_agent", "is_active", "groups")
+    list_editable = ("is_agent",)

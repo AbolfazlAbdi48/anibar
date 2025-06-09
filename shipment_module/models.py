@@ -53,7 +53,7 @@ class Shipment(models.Model):
         max_length=255, null=True, blank=True, verbose_name="Cnee"
     )  # TODO: foreign key to User model
     manifest_no = models.CharField(max_length=255, null=True, blank=True, verbose_name="Manifest No")
-    epl_date = models.DateField(blank=True, null=True, verbose_name="ETD")
+    epl_date = models.DateField(blank=True, null=True, verbose_name="EPL Date")
 
     class Meta:
         verbose_name = 'Shipment'

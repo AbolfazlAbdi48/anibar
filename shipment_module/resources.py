@@ -35,7 +35,7 @@ class GetOrCreateUserWidget(ForeignKeyWidget):
     def clean(self, value, row=None, *args, **kwargs):
         if not value:
             return None
-        user, created = User.objects.get_or_create(username=value)
+        user, created = User.objects.get_or_create(username=value.lower(), is_agent=True)
         return user
 
 

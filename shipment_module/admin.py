@@ -12,5 +12,5 @@ class ShipmentAdmin(ImportExportModelAdmin):
         'mawb', 'hawb', 'etdw', 'etd', 'eta', 'pol', 'pod', 'term', 'pcs', 'gw', 'vol', 'cw',
         'currency', 'commodity', 'hshipper', 'hcnee', 'shipper', 'Cnee', 'manifest_no', 'epl_date'
     )
-    list_filter = ('eta', 'console_no')
-    search_fields = ('client__username', 'sp__username')
+    list_filter = ('eta', 'console_no', "inq_sent")
+    search_fields = ('client__username', 'sp__username', "mawb", "hawb")
