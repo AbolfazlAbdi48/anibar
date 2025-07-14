@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 from account.models import User
 
@@ -58,6 +59,9 @@ class Shipment(models.Model):
     class Meta:
         verbose_name = 'Shipment'
         verbose_name_plural = 'Shipments'
+
+    def get_absolute_url(self):
+        return reverse("shipment:invoice-detail", args=[self.pk])
 
     def __str__(self):
         return f"{self.ref} - {self.client.username}"
