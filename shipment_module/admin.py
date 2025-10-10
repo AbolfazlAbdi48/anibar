@@ -13,7 +13,8 @@ class ShipmentAdmin(ImportExportModelAdmin):
         'currency', 'commodity', 'hshipper', 'hcnee', 'shipper', 'cnee', 'manifest_no', 'epl_date'
     )
     list_filter = ('eta', 'console_no', "inq_sent")
-    search_fields = ('client__name', 'sp__username', "mawb", "hawb")
+    search_fields = ('client__name', 'sp__username', "mawb", "hawb", "shipper__name", "cnee__name", "cnee__company")
+    search_help_text = "Seach By client, s/p, mawb, hawb, sipper, cnee"
     # fieldsets = (
     #     ('1. Basic Details', {"fields": ('ref', 'client', 'commodity', 'pcs', 'gw', 'vol', 'cw')}),
     #     ('2. Transport & Routing Information', {
