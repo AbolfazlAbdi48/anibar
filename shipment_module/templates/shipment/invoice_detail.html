@@ -57,43 +57,43 @@
 
 <h1>INVOICE</h1>
 
-<p><strong>DATE:</strong> 1403/12/20</p>
-<p><strong>REF. NUMBER:</strong> 25020104</p>
-<p><strong>AWB NUMBER:</strong> 229-17337375</p>
+<p><strong>DATE:</strong> {{ shipment.confirm_date }}</p>
+<p><strong>REF. NUMBER:</strong> {{ shipment.ref }}</p>
+<p><strong>AWB NUMBER:</strong> {{ shipment.mawb }}</p>
 
 <h2>Shipment Details</h2>
 <table>
     <tr>
         <td class="section-title">Shipper</td>
-        <td>EURO EXIM SERVICES PVT.LTD</td>
+        <td>{{ shipment.shipper.name }}</td>
     </tr>
     <tr>
         <td class="section-title">Airport of Departure</td>
-        <td>BOM</td>
+        <td>{{ shipment.pol.data }}</td>
     </tr>
     <tr>
         <td class="section-title">Consignee</td>
-        <td>ANI BAR PARVAZ</td>
+        <td>{{ shipment.cnee.company }}</td>
     </tr>
     <tr>
         <td class="section-title">Airport of Destination</td>
-        <td>IKA</td>
+        <td>{{ shipment.pod.data }}</td>
     </tr>
     <tr>
         <td class="section-title">Final Destination</td>
-        <td>Tehran</td>
+        <td></td>
     </tr>
     <tr>
         <td class="section-title">Commodity</td>
-        <td>Shaft Holder</td>
+        <td>{{ shipment.commodity }}</td>
     </tr>
     <tr>
         <td class="section-title">Quantity</td>
-        <td>1 CTN</td>
+        <td>{{ shipment.pcs }}</td>
     </tr>
     <tr>
         <td class="section-title">Chargeable Weight</td>
-        <td>100 KG</td>
+        <td>{{ shipment.cw }}</td>
     </tr>
     <tr>
         <td class="section-title">Route</td>
@@ -101,11 +101,11 @@
     </tr>
     <tr>
         <td class="section-title">Attention</td>
-        <td>Mr. Tehrani</td>
+        <td>{{ shipment.cnee.name }}</td>
     </tr>
     <tr>
         <td class="section-title">Service Type</td>
-        <td>EXW</td>
+        <td>{{ shipment.term.data }}</td>
     </tr>
 </table>
 

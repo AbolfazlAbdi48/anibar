@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from account.models import User
+from account.models import User, Customer, Consignee, Shipper
 
 
 # Register your models here.
@@ -29,3 +29,18 @@ class UserModelAdmin(UserAdmin):
     list_display = ("username", "email", "first_name", "last_name", "is_staff", "is_agent")
     list_filter = ("is_staff", "is_agent", "is_active", "groups")
     list_editable = ("is_agent",)
+
+
+@admin.register(Customer)
+class CustomerAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Consignee)
+class ConsigneeAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Shipper)
+class ShipperAdmin(admin.ModelAdmin):
+    pass
