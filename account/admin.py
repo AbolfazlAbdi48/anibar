@@ -2,10 +2,12 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from account.models import User, Customer, Consignee, Shipper
+from account.models import User, Customer, Consignee, Shipper, Carrier
 
 
-# Register your models here.
+# -------------------------
+# User Admin
+# -------------------------
 @admin.register(User)
 class UserModelAdmin(UserAdmin):
     fieldsets = (
@@ -28,19 +30,48 @@ class UserModelAdmin(UserAdmin):
     )
     list_display = ("username", "email", "first_name", "last_name", "is_staff", "is_agent")
     list_filter = ("is_staff", "is_agent", "is_active", "groups")
+    search_fields = ("username", "email", "first_name", "last_name")
     list_editable = ("is_agent",)
 
 
+# -------------------------
+# Customer Admin
+# -------------------------
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    pass
+    list_display = ("name", "email", "phone", "address")
+    search_fields = ("name", "email", "phone")
+    ordering = ("name",)
 
 
+# -------------------------
+# Consignee Admin
+# -------------------------
 @admin.register(Consignee)
 class ConsigneeAdmin(admin.ModelAdmin):
-    pass
+    list_display = ("name", "national_id", "email", "phone")
+    search_fields = ("name", "national_id", "email", "phone")
+    ordering = ("name",)
+    fieldsets = (
+        (None, {"fields": ("name", "national_id", "email", "phone", "address")}),
+    )
 
 
+# -------------------------
+# Shipper Admin
+# -------------------------
 @admin.register(Shipper)
 class ShipperAdmin(admin.ModelAdmin):
-    pass
+    list_display = ("name", "email", "phone", "address")
+    search_fields = ("name", "email", "phone")
+    ordering = ("name",)
+
+
+# -------------------------
+# Carrier Admin
+# -------------------------
+@admin.register(Carrier)
+class CarrierAdmin(admin.ModelAdmin):
+    list_display = ("name", "abbreviation", "national_id")
+    search_fields = ("name", "abbreviation", "national_id")
+    ordering = ("name",)
