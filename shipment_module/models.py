@@ -104,6 +104,21 @@ class Shipment(models.Model):
 
     transit_time = models.IntegerField(blank=True, null=True, verbose_name="Transit Time (days)")
 
+    airfreight = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    pickup = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    custom_clearance = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    do_clearance_ika = models.DecimalField(
+        "D/O + Clearance IKA (IRR)", max_digits=15, decimal_places=0, null=True, blank=True
+    )
+    transfer_fee = models.DecimalField(
+        "Transfer Fee (2%)", max_digits=12, decimal_places=2, null=True, blank=True
+    )
+    other_charges = models.DecimalField(
+        "Other Charges (S/AWB, AAI, AMS, AWB/PCA)", max_digits=12, decimal_places=2, null=True, blank=True
+    )
+    total_usd = models.DecimalField("Total (USD)", max_digits=12, decimal_places=2, null=True, blank=True)
+    grand_total_usd = models.DecimalField("Grand Total (USD)", max_digits=12, decimal_places=2, null=True, blank=True)
+
     class Meta:
         verbose_name = 'Shipment'
         verbose_name_plural = '1. Shipments'
@@ -115,14 +130,13 @@ class Shipment(models.Model):
         return reverse("shipment:invoice-detail", args=[self.pk])
 
     def save(self, *args, **kwargs):
-        # 1. Auto-generate Ref number if not provided
         if not self.ref:
             today = timezone.now().date()
             date_prefix = today.strftime("%y%m%d")
 
             # Count how many shipments with same prefix exist
             today_shipments = Shipment.objects.filter(ref__startswith=date_prefix).count()
-            counter = today_shipments
+            counter = today_shipments + 1
 
             if counter <= 99:
                 suffix = f"{counter:02d}"  # two digits up to 99
@@ -131,17 +145,14 @@ class Shipment(models.Model):
 
             self.ref = f"{date_prefix}{suffix}"
 
-        # 2. Auto-fill S/P (salesperson) if provided from request context
         if not self.sp_id and hasattr(self, "_current_user"):
             self.sp = self._current_user
 
-        # 5. Auto-fill confirmation date when checked
         if self.confirmation and not self.confirm_date:
-            self.confirm_date = timezone.now()
+            self.confirm_date = timezone.localtime(timezone.now())
 
-        # 15. Calculate transit time = ETA - ETD
         if self.eta and self.etd:
-            self.transit_time = (self.eta - self.etd).days
+            self.transit_time = (self.etdw - self.eta).days
         else:
             self.transit_time = None
 

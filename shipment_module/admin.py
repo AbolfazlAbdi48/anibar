@@ -1,3 +1,4 @@
+from urllib import request
 from import_export.admin import ImportExportModelAdmin
 from django.contrib import admin
 from .models import Shipment, PolList, PodList, TermList
@@ -41,45 +42,78 @@ class ShipmentAdmin(ImportExportModelAdmin):
     # Field organization
     # -------------------------------
     fieldsets = (
-        ('1. Basic Details', {
-            "fields": (
-                'ref', 'client', 'sp', 'commodity', 'pcs', 'gw', 'vol', 'cw', 'currency', 'hscode'
-            )
-        }),
-        ('2. Transport & Routing', {
-            "fields": (
-                'via', 'carrier', 'pol', 'pod', 'term', 'etdw', 'etd', 'eta', 'transit_time'
-            )
-        }),
-        ('3. Operators & Marketing', {
-            "fields": (
-                'operators', 'marketing_channel'
-            )
-        }),
-        ('4. Documentation & Consolidation', {
-            "fields": (
-                'console', 'console_no', 'mawb', 'hawb', 'manifest_no'
-            )
-        }),
-        ('5. Parties Involved', {
-            "fields": (
-                'shipper', 'cnee', 'hawb_shipper', 'hawb_cnee'
-            )
-        }),
-        ('6. Financial & Status', {
-            "fields": (
-                'extra_charges', 'inq_sent', 'inq_replied', 'confirmation', 'confirm_date'
-            )
-        }),
-    )
+    # 1. Basic Details (as you defined)
+    ('1. Basic Details', {
+        "fields": (
+            'ref', 'client', 'sp', 'pol', 'pod', 'marketing_channel'
+        )
+    }),
 
-    # -------------------------------
-    # Auto-assign logged-in user to S/P
-    # -------------------------------
-    def save_model(self, request, obj, form, change):
-        if not obj.sp_id:
-            obj._current_user = request.user
-        super().save_model(request, obj, form, change)
+    # 2. Cargo Details (we moved commodity, pcs, weights, etc. here)
+    ('2. Cargo Details', {
+        "fields": (
+            'commodity', 'pcs', 'gw', 'vol', 'cw', 'currency', 'hscode'
+        )
+    }),
+
+    # 3. Transport & Routing
+    ('3. Transport & Routing', {
+        "fields": (
+            'via', 'carrier', 'term', 'etdw', 'etd', 'eta', 'transit_time'
+        )
+    }),
+
+    # 4. Operators & Marketing
+    ('4. Operators & Marketing', {
+        "fields": (
+            'operators',
+        )
+    }),
+
+    # 5. Documentation & Consolidation
+    ('5. Documentation & Consolidation', {
+        "fields": (
+            'console', 'console_no', 'mawb', 'hawb', 'manifest_no'
+        )
+    }),
+
+    # 6. Parties Involved
+    ('6. Parties Involved', {
+        "fields": (
+            'shipper', 'cnee', 'hawb_shipper', 'hawb_cnee'
+        )
+    }),
+
+    # 7. Financial & Status
+    ('7. Financial & Status', {
+        "fields": (
+            'extra_charges', 'inq_sent', 'inq_replied', 'confirmation', 'confirm_date'
+        )
+    }),
+    
+    # 8. Charges
+    ('8. Charges (USD)', {
+        "fields": (
+            'airfreight', 'pickup', 'custom_clearance',
+            'transfer_fee', 'other_charges', 'total_usd', 'grand_total_usd'
+        )
+    }),
+    
+    # 9. D/O & Clearance
+    ('9. D/O & Clearance (IRR)', {
+        "fields": ('do_clearance_ika',)
+    }),
+)
+
+    class Media:
+        js = ('static/admin/js/stage_validation.js',)
+
+
+    def get_changeform_initial_data(self, request):
+        initial = super().get_changeform_initial_data(request)
+        if not request.user.is_anonymous:
+            initial['sp'] = request.user.pk
+        return initial
 
 
 # -------------------------------
