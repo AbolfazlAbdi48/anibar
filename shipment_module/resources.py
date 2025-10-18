@@ -1,10 +1,9 @@
 from import_export import fields, resources
-from import_export.widgets import ForeignKeyWidget
-
-from account.models import User, Customer, Shipper, Consignee
+from import_export.widgets import ForeignKeyWidget, ManyToManyWidget
+from django.contrib.auth import get_user_model
+from account.models import User, Customer, Shipper, Consignee as Cnee, Carrier
 from shipment_module.models import Shipment, PolList, PodList, TermList
-
-from import_export.widgets import DateWidget, Widget
+from import_export.widgets import Widget
 from datetime import datetime
 
 
@@ -77,85 +76,66 @@ class GetOrCreateListWidget(ForeignKeyWidget):
 
         return instance
 
+User = get_user_model()
 
 class ShipmentModelResource(resources.ModelResource):
-    client = fields.Field(
-        column_name='client',
-        attribute='client',
-        widget=GetOrCreateCustomerWidget(Customer, 'name')
-    )
-
-    sp = fields.Field(
-        column_name='sp',
-        attribute='sp',
-        widget=ForeignKeyWidget(User, 'username')
-    )
-
-    confirm_date = fields.Field(
-        column_name='confirm_date',
-        attribute='confirm_date',
-        widget=DateWidget(format='%Y.%m.%d')
-    )
-
-    etdw = fields.Field(
-        column_name='etdw',
-        attribute='etdw',
-        widget=MultiFormatDateWidget()
-    )
-
-    etd = fields.Field(
-        column_name='etd',
-        attribute='etd',
-        widget=MultiFormatDateWidget()
-    )
-
-    eta = fields.Field(
-        column_name='eta',
-        attribute='eta',
-        widget=MultiFormatDateWidget()
-    )
-
-    transfer_time = fields.Field(
-        column_name='transfer_time',
-        attribute='transfer_time',
-        widget=MultiFormatDateWidget()
-    )
-
+    # Explicit widgets for ForeignKey & ManyToMany relationships
     pol = fields.Field(
         column_name='pol',
         attribute='pol',
-        widget=GetOrCreateListWidget(PolList, 'data')
+        widget=ForeignKeyWidget(PolList, 'name')
     )
-
     pod = fields.Field(
         column_name='pod',
         attribute='pod',
-        widget=GetOrCreateListWidget(PodList, 'data')
+        widget=ForeignKeyWidget(PodList, 'name')
     )
-
     term = fields.Field(
         column_name='term',
         attribute='term',
-        widget=GetOrCreateListWidget(TermList, 'data')
+        widget=ForeignKeyWidget(TermList, 'name')
     )
-
     shipper = fields.Field(
-        column_name='shipper',
+        column_name='mawb_shipper',
         attribute='shipper',
-        widget=GetOrCreatePartyWidget(Shipper, 'name')
+        widget=ForeignKeyWidget(Shipper, 'name')
     )
-
     cnee = fields.Field(
-        column_name='Cnee',
+        column_name='mawb_cnee',
         attribute='cnee',
-        widget=GetOrCreatePartyWidget(Consignee, 'name')
+        widget=ForeignKeyWidget(Cnee, 'name')
+    )
+    hawb_shipper = fields.Field(
+        column_name='hawb_shipper',
+        attribute='hawb_shipper',
+        widget=ForeignKeyWidget(Shipper, 'name')
+    )
+    hawb_cnee = fields.Field(
+        column_name='hawb_cnee',
+        attribute='hawb_cnee',
+        widget=ForeignKeyWidget(Cnee, 'name')
+    )
+    carrier = fields.Field(
+        column_name='carrier',
+        attribute='carrier',
+        widget=ForeignKeyWidget(Carrier, 'name')
+    )
+    operators = fields.Field(
+        column_name='operators',
+        attribute='operators',
+        widget=ManyToManyWidget(User, separator=',', field='username')
     )
 
     class Meta:
         model = Shipment
-        fields = (
-            'id', 'ref', 'client', 'sp', 'inq_sent', 'inq_replied', 'confirm_date', 'via', 'carrier', 'console',
-            'console_no',
-            'mawb', 'hawb', 'etdw', 'etd', 'eta', 'transfer_time', 'pol', 'pod', 'term', 'pcs', 'gw', 'vol', 'cw',
-            'currency', 'commodity', 'hshipper', 'hcnee', 'shipper', 'cnee', 'manifest_no', 'epl_date'
+        # List all model fields you want imported/exported
+        # You can exclude the auto/computed ones
+        exclude = (
+            'id',
+            'sp',  # set automatically from logged-in user
+            'transit_time',  # computed
+            'confirm_date',  # auto when confirmation checked
         )
+        import_id_fields = ('ref',)
+        skip_unchanged = True
+        report_skipped = True
