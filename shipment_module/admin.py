@@ -42,72 +42,50 @@ class ShipmentAdmin(ImportExportModelAdmin):
     # Field organization
     # -------------------------------
     fieldsets = (
-    # 1. Basic Details (as you defined)
+    # 1. Basic Details
     ('1. Basic Details', {
         "fields": (
             'ref', 'client', 'sp', 'pol', 'pod', 'marketing_channel'
         )
     }),
 
-    # 2. Cargo Details (we moved commodity, pcs, weights, etc. here)
+    # 2. Cargo Details (merged with all others)
     ('2. Cargo Details', {
         "fields": (
-            'commodity', 'pcs', 'gw', 'vol', 'cw', 'currency', 'hscode'
-        )
-    }),
+            # Old Cargo Details
+            'commodity', 'pcs', 'gw', 'vol', 'cw', 'currency', 'hscode',
 
-    # 3. Transport & Routing
-    ('3. Transport & Routing', {
-        "fields": (
-            'via', 'carrier', 'term', 'etdw', 'etd', 'eta', 'transit_time'
-        )
-    }),
+            # Transport & Routing
+            'via', 'carrier', 'term', 'etdw', 'etd', 'eta', 'transit_time',
 
-    # 4. Operators & Marketing
-    ('4. Operators & Marketing', {
-        "fields": (
+            # Operators & Marketing
             'operators',
+
+            # Documentation & Consolidation
+            'console', 'console_no', 'mawb', 'hawb', 'manifest_no',
+
+            # Parties Involved
+            'shipper', 'cnee', 'hawb_shipper', 'hawb_cnee',
+
+            # Financial & Status
+            'extra_charges', 'inq_sent', 'inq_replied', 'confirmation', 'confirm_date',
         )
     }),
 
-    # 5. Documentation & Consolidation
-    ('5. Documentation & Consolidation', {
-        "fields": (
-            'console', 'console_no', 'mawb', 'hawb', 'manifest_no'
-        )
-    }),
-
-    # 6. Parties Involved
-    ('6. Parties Involved', {
-        "fields": (
-            'shipper', 'cnee', 'hawb_shipper', 'hawb_cnee'
-        )
-    }),
-
-    # 7. Financial & Status
-    ('7. Financial & Status', {
-        "fields": (
-            'extra_charges', 'inq_sent', 'inq_replied', 'confirmation', 'confirm_date'
-        )
-    }),
-    
-    # 8. Charges
+    # 8. Charges (USD)
     ('8. Charges (USD)', {
         "fields": (
             'airfreight', 'pickup', 'custom_clearance',
             'transfer_fee', 'other_charges', 'total_usd', 'grand_total_usd'
         )
     }),
-    
-    # 9. D/O & Clearance
+
+    # 9. D/O & Clearance (IRR)
     ('9. D/O & Clearance (IRR)', {
         "fields": ('do_clearance_ika',)
     }),
 )
-
-    class Media:
-        js = ('static/admin/js/stage_validation.js',)
-
+    # -------------------------------
 
     def get_changeform_initial_data(self, request):
         initial = super().get_changeform_initial_data(request)

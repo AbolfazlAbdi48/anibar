@@ -6,23 +6,47 @@ from django.utils import timezone
 
 # Create your models here.
 class Shipment(models.Model):
+    # 1. Basic Details
     ref = models.CharField(max_length=255, verbose_name="Ref.No.", blank=True, null=True)
+
     client = models.ForeignKey(
         to=Customer,
         related_name="shipment_client",
         on_delete=models.PROTECT,
         verbose_name="Client",
-        blank=True,
-        null=True,
+        blank=False,
+        null=False,
     )
     sp = models.ForeignKey(
         to=User,
         related_name="shipment_sp",
         on_delete=models.PROTECT,
         verbose_name="S/P",
-        blank=True,
-        null=True
+        blank=False,
+        null=False
     )
+    pol = models.ForeignKey(
+        to='PolList',
+        on_delete=models.CASCADE,
+        verbose_name="Pol",
+        blank=False,
+        null=False
+    )
+    pod = models.ForeignKey(
+        to='PodList',
+        on_delete=models.CASCADE,
+        verbose_name="Pod",
+        blank=False,
+        null=False
+    )
+    marketing_channel = models.CharField(
+        max_length=100,
+        blank=False,
+        null=False,
+        verbose_name="Marketing Channel"
+    )
+
+    # 2. Other Details (remain optional)
     inq_sent = models.BooleanField(default=False, verbose_name="INQ SENT")
     inq_replied = models.BooleanField(default=False, verbose_name="INQ REPLIED")
 
@@ -49,8 +73,6 @@ class Shipment(models.Model):
     etd = models.DateField(blank=True, null=True, verbose_name="ETD")
     eta = models.DateField(blank=True, null=True, verbose_name="ETA")
 
-    pol = models.ForeignKey(to='PolList', on_delete=models.CASCADE, verbose_name="Pol", blank=True, null=True)
-    pod = models.ForeignKey(to='PodList', on_delete=models.CASCADE, verbose_name="Pod", blank=True, null=True)
     term = models.ForeignKey(to='TermList', on_delete=models.CASCADE, verbose_name="Term", blank=True, null=True)
 
     pcs = models.CharField(max_length=255, verbose_name="PCS", blank=True, null=True)
@@ -98,7 +120,6 @@ class Shipment(models.Model):
 
     hscode = models.CharField(max_length=50, blank=True, null=True, verbose_name="HS Code")
     extra_charges = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name="Extra Charges")
-    marketing_channel = models.CharField(max_length=100, blank=True, null=True, verbose_name="Marketing Channel")
 
     operators = models.ManyToManyField(User, blank=True, related_name="operator_shipments", verbose_name="Operators")
 
@@ -118,6 +139,7 @@ class Shipment(models.Model):
     )
     total_usd = models.DecimalField("Total (USD)", max_digits=12, decimal_places=2, null=True, blank=True)
     grand_total_usd = models.DecimalField("Grand Total (USD)", max_digits=12, decimal_places=2, null=True, blank=True)
+
 
     class Meta:
         verbose_name = 'Shipment'

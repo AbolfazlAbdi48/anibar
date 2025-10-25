@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "import_export",
     "account",
     "shipment_module",
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
