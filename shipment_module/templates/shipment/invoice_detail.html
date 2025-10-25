@@ -1,3 +1,5 @@
+{% load humanize %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,87 +65,38 @@
 
 <h2>Shipment Details</h2>
 <table>
-    <tr>
-        <td class="section-title">Shipper</td>
-        <td>{{ shipment.shipper.name }}</td>
-    </tr>
-    <tr>
-        <td class="section-title">Airport of Departure</td>
-        <td>{{ shipment.pol.data }}</td>
-    </tr>
-    <tr>
-        <td class="section-title">Consignee</td>
-        <td>{{ shipment.cnee.company }}</td>
-    </tr>
-    <tr>
-        <td class="section-title">Airport of Destination</td>
-        <td>{{ shipment.pod.data }}</td>
-    </tr>
-    <tr>
-        <td class="section-title">Final Destination</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td class="section-title">Commodity</td>
-        <td>{{ shipment.commodity }}</td>
-    </tr>
-    <tr>
-        <td class="section-title">Quantity</td>
-        <td>{{ shipment.pcs }}</td>
-    </tr>
-    <tr>
-        <td class="section-title">Chargeable Weight</td>
-        <td>{{ shipment.cw }}</td>
-    </tr>
-    <tr>
-        <td class="section-title">Route</td>
-        <td>BOM - KWI - IKA</td>
-    </tr>
-    <tr>
-        <td class="section-title">Attention</td>
-        <td>{{ shipment.cnee.name }}</td>
-    </tr>
-    <tr>
-        <td class="section-title">Service Type</td>
-        <td>{{ shipment.term.data }}</td>
-    </tr>
+  <tr><td><strong>Ref No:</strong></td><td>{{ shipment.ref }}</td></tr>
+  <tr><td><strong>Client:</strong></td><td>{{ shipment.client.name }}</td></tr>
+  <tr><td><strong>S/P:</strong></td><td>{{ shipment.sp.username }}</td></tr>
+  <tr><td><strong>Shipper:</strong></td><td>{{ shipment.shipper.name }}</td></tr>
+  <tr><td><strong>Consignee:</strong></td><td>{{ shipment.cnee.name }}</td></tr>
+  <tr><td><strong>POL:</strong></td><td>{{ shipment.pol.data }}</td></tr>
+  <tr><td><strong>POD:</strong></td><td>{{ shipment.pod.data }}</td></tr>
+  <tr><td><strong>Carrier:</strong></td><td>{{ shipment.carrier.name }}</td></tr>
+  <tr><td><strong>ETD:</strong></td><td>{{ shipment.etd }}</td></tr>
+  <tr><td><strong>ETA:</strong></td><td>{{ shipment.eta }}</td></tr>
+  <tr><td><strong>Transit Time (days):</strong></td><td>{{ shipment.transit_time }}</td></tr>
+  <tr><td><strong>Marketing Channel:</strong></td><td>{{ shipment.marketing_channel }}</td></tr>
 </table>
 
 <h2>Charges (USD)</h2>
 <table>
-    <tr>
-        <td class="section-title">Airfreight</td>
-        <td>$850.00</td>
-    </tr>
-    <tr>
-        <td class="section-title">Pickup</td>
-        <td>$135.00</td>
-    </tr>
-    <tr>
-        <td class="section-title">Custom Clearance</td>
-        <td>$85.00</td>
-    </tr>
-    <tr>
-        <td class="section-title">D/O + Clearance IKA (IRR)</td>
-        <td>423,000,000</td>
-    </tr>
-    <tr>
-        <td class="section-title">Transfer Fee (2%)</td>
-        <td>$21.40</td>
-    </tr>
-    <tr>
-        <td class="section-title">Other Charges (S/AWB, AAI, AMS, AWB/PCA)</td>
-        <td>$0.00</td>
-    </tr>
-    <tr>
-        <td class="section-title">Total</td>
-        <td>$1070.00</td>
-    </tr>
-    <tr>
-        <td class="section-title">Grand Total</td>
-        <td><strong>$1091.40</strong></td>
-    </tr>
+  <tr><td>Airfreight</td><td>${{ shipment.airfreight|floatformat:2 }}</td></tr>
+  <tr><td>Pickup</td><td>${{ shipment.pickup|floatformat:2 }}</td></tr>
+  <tr><td>Custom Clearance</td><td>${{ shipment.custom_clearance|floatformat:2 }}</td></tr>
+  <tr><td>Transfer Fee (2%)</td><td>${{ shipment.transfer_fee|floatformat:2 }}</td></tr>
+  <tr><td>Other Charges</td><td>${{ shipment.other_charges|floatformat:2 }}</td></tr>
+  <tr><td>Extra Charges</td><td>${{ shipment.extra_charges|floatformat:2 }}</td></tr>
+  <tr><td>Total</td><td><strong>${{ shipment.total_usd|floatformat:2 }}</strong></td></tr>
+  <tr><td>Grand Total</td><td><strong>${{ shipment.grand_total_usd|floatformat:2 }}</strong></td></tr>
 </table>
+
+<h2>D/O + Clearance (IRR)</h2>
+<table>
+  <tr><td>D/O + Clearance IKA (IRR)</td><td>{{ shipment.do_clearance_ika|intcomma }}</td></tr>
+</table>
+
+
 
 <button onclick="window.print()" class="print-button">Print</button>
 
