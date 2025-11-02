@@ -19,6 +19,7 @@ class Customer(models.Model):
     country = models.CharField(max_length=100, blank=True, null=True, verbose_name=_('Country'))
     phone = models.CharField(max_length=50, blank=True, null=True, verbose_name=_('Phone Number'))
     email = models.EmailField(max_length=100, blank=True, null=True, verbose_name=_('Email'))
+    marketing_channel = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("Marketing Channel"))
 
     class Meta:
         verbose_name = "Customer"
@@ -37,7 +38,7 @@ class Shipper(models.Model):
 
     class Meta:
         verbose_name = "Shipper"
-        verbose_name_plural = "2. Shippers"
+        verbose_name_plural = "3. Shippers"
 
     def __str__(self):
         return self.name
@@ -54,7 +55,7 @@ class Consignee(models.Model):
 
     class Meta:
         verbose_name = "Consignee"
-        verbose_name_plural = "3. Consignees"
+        verbose_name_plural = "4. Consignees"
 
     def __str__(self):
         return self.name
@@ -67,7 +68,7 @@ class Carrier(models.Model):
 
     class Meta:
         verbose_name = "Carrier"
-        verbose_name_plural = "4. Carriers"
+        verbose_name_plural = "5. Carriers"
 
     def __str__(self):
         return self.name

@@ -2,6 +2,7 @@ from django.db import models
 from django.urls import reverse
 from account.models import User, Customer, Shipper, Consignee, Carrier
 from django.utils import timezone
+from django.utils.html import format_html
 
 
 # Create your models here.
@@ -39,18 +40,15 @@ class Shipment(models.Model):
         blank=False,
         null=False
     )
-    marketing_channel = models.CharField(
-        max_length=100,
-        blank=False,
-        null=False,
-        verbose_name="Marketing Channel"
-    )
 
-    # 2. Other Details (remain optional)
-    inq_sent = models.BooleanField(default=False, verbose_name="INQ SENT")
+    # 2. Inquiry / Confirmation fields (we drop inq_sent and standardize naming)
+    # If you still need inq_sent, keep it before running migrations.
+    # inq_sent = models.BooleanField(default=False, verbose_name="INQ SENT")  # removed per your request
+
     inq_replied = models.BooleanField(default=False, verbose_name="INQ REPLIED")
 
-    confirmation = models.BooleanField(default=False, verbose_name="Confirmed")
+    # Use 'confirmed' as the boolean (was named 'confirmation' previously)
+    confirmed = models.BooleanField(default=False, verbose_name="Confirmed")
     confirm_date = models.DateTimeField(blank=True, null=True, verbose_name="Confirmation Date")
 
     via = models.CharField(max_length=255, null=True, blank=True, verbose_name="VIA")
@@ -63,25 +61,59 @@ class Shipment(models.Model):
         verbose_name="Carrier"
     )
 
-    console = models.BooleanField(default=False, verbose_name="Console")
-    console_no = models.CharField(max_length=255, null=True, blank=True, verbose_name="Console No")
+    # 3. Console & Agent
+    # Replaced console boolean+console_no with a FK to Console model (Console table)
+    console = models.ForeignKey(
+        to="Console",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Console"
+    )
 
-    mawb = models.CharField(max_length=255, verbose_name="MAWB", blank=True, null=True)
-    hawb = models.CharField(max_length=255, verbose_name="HAWB", blank=True, null=True)
+    # Agent relation
+    agent = models.ForeignKey("Agent", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Agent")
 
+    # 4. Master / House (keep field names to avoid destructive rename; verbose names adjusted)
+    mawb = models.CharField(max_length=255, verbose_name="Master", blank=True, null=True)  # was MAWB
+    hawb = models.CharField(max_length=255, verbose_name="House", blank=True, null=True)   # was HAWB
+
+    # new first master/house fields (appear under VIA)
+    first_master = models.CharField(max_length=255, verbose_name="First Master", blank=True, null=True)
+    first_house = models.CharField(max_length=255, verbose_name="First House", blank=True, null=True)
+
+    # 5. Dates
     etdw = models.DateField(blank=True, null=True, verbose_name="ETD W")
     etd = models.DateField(blank=True, null=True, verbose_name="ETD")
     eta = models.DateField(blank=True, null=True, verbose_name="ETA")
 
+    # 6. Term and mode
     term = models.ForeignKey(to='TermList', on_delete=models.CASCADE, verbose_name="Term", blank=True, null=True)
+    MODE_CHOICES = [
+        ("marine", "Marine"),
+        ("air", "Aerial"),
+        ("train", "Train"),
+    ]
 
+    mode = models.CharField(
+        max_length=20,
+        choices=MODE_CHOICES,
+        blank=True,
+        null=True,
+        verbose_name="Mode",
+    )
+
+    # 7. Cargo & weights (kept as strings to avoid type-change migrations)
     pcs = models.CharField(max_length=255, verbose_name="PCS", blank=True, null=True)
     gw = models.CharField(max_length=255, verbose_name="G.W", blank=True, null=True)
+    first_gw = models.CharField(max_length=255, verbose_name="First G.W", blank=True, null=True)
     vol = models.CharField(max_length=255, verbose_name="VOL", blank=True, null=True)
     cw = models.CharField(max_length=255, null=True, blank=True, verbose_name="C.W")
+    first_cw = models.CharField(max_length=255, null=True, blank=True, verbose_name="First C.W")
     currency = models.CharField(max_length=255, null=True, blank=True, verbose_name="Currency")
     commodity = models.CharField(max_length=255, null=True, blank=True, verbose_name="Commodity")
 
+    # 8. Parties
     shipper = models.ForeignKey(
         to=Shipper,
         related_name="shipment_shipper",
@@ -125,25 +157,32 @@ class Shipment(models.Model):
 
     transit_time = models.IntegerField(blank=True, null=True, verbose_name="Transit Time (days)")
 
+    # 9. Charges & totals (financials)
     airfreight = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     pickup = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     custom_clearance = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
-    do_clearance_ika = models.DecimalField(
-        "D/O + Clearance IKA (IRR)", max_digits=15, decimal_places=0, null=True, blank=True
-    )
-    transfer_fee = models.DecimalField(
-        "Transfer Fee (2%)", max_digits=12, decimal_places=2, null=True, blank=True
-    )
-    other_charges = models.DecimalField(
-        "Other Charges (S/AWB, AAI, AMS, AWB/PCA)", max_digits=12, decimal_places=2, null=True, blank=True
-    )
+    do_clearance_ika = models.DecimalField("D/O + Clearance IKA (IRR)", max_digits=15, decimal_places=0, null=True, blank=True)
+    transfer_fee = models.DecimalField("Transfer Fee (2%)", max_digits=12, decimal_places=2, null=True, blank=True)
+    other_charges = models.DecimalField("Other Charges (S/AWB, AAI, AMS, AWB/PCA)", max_digits=12, decimal_places=2, null=True, blank=True)
     total_usd = models.DecimalField("Total (USD)", max_digits=12, decimal_places=2, null=True, blank=True)
     grand_total_usd = models.DecimalField("Grand Total (USD)", max_digits=12, decimal_places=2, null=True, blank=True)
 
+    # 10. Added priority field (visual)
+    PRIORITY_CHOICES = [
+        ("green", "Green"),
+        ("yellow", "Yellow"),
+        ("red", "Red"),
+    ]
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default="green", verbose_name="Priority")
 
+    # Meta
     class Meta:
         verbose_name = 'Shipment'
         verbose_name_plural = '1. Shipments'
+        ordering = ["-created_at"]
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.ref or 'NoRef'} - {self.client or 'NoClient'}"
@@ -151,35 +190,49 @@ class Shipment(models.Model):
     def get_absolute_url(self):
         return reverse("shipment:invoice-detail", args=[self.pk])
 
+    # models.py (Shipment)
+    def get_manifest_url(self):
+        return reverse("shipment:manifest-detail", args=[self.pk])
+
+    def colored_priority_badge(self):
+        colors = {"green": "#6cc24a", "yellow": "#ffd43b", "red": "#ff4d4f"}
+        color = colors.get(self.priority, "#ddd")
+        return format_html('<span style="padding:3px 8px;border-radius:6px;background:{};">{}</span>', color, self.get_priority_display())
+    colored_priority_badge.short_description = "Priority"
+
     def save(self, *args, **kwargs):
+        # maintain your original ref generation logic
         if not self.ref:
             today = timezone.now().date()
             date_prefix = today.strftime("%y%m%d")
 
-            # Count how many shipments with same prefix exist
             today_shipments = Shipment.objects.filter(ref__startswith=date_prefix).count()
             counter = today_shipments + 1
 
             if counter <= 99:
-                suffix = f"{counter:02d}"  # two digits up to 99
+                suffix = f"{counter:02d}"
             else:
-                suffix = f"{counter:03d}"  # three digits after 99
+                suffix = f"{counter:03d}"
 
             self.ref = f"{date_prefix}{suffix}"
 
-        if not self.sp_id and hasattr(self, "_current_user"):
+        if not getattr(self, "sp_id", None) and hasattr(self, "_current_user"):
             self.sp = self._current_user
 
-        if self.confirmation and not self.confirm_date:
+        # auto-set confirm_date when confirmed
+        if self.confirmed and not self.confirm_date:
             self.confirm_date = timezone.localtime(timezone.now())
 
-        if self.eta and self.etd:
-            self.transit_time = (self.etdw - self.eta).days
+        # auto calc transit time (etdw - eta)
+        if self.etdw and self.eta:
+            try:
+                self.transit_time = (self.etdw - self.eta).days
+            except Exception:
+                self.transit_time = None
         else:
             self.transit_time = None
 
         super().save(*args, **kwargs)
-
 
 
 class PolList(models.Model):
@@ -219,3 +272,73 @@ class TermList(models.Model):
 
     def __str__(self):
         return self.data
+
+class Agent(models.Model):
+    name = models.CharField(max_length=200)
+    code = models.CharField(max_length=50, blank=True, null=True)
+    phone = models.CharField(max_length=50, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Agent"
+        verbose_name_plural = "5. Agents"
+
+    def __str__(self):
+        return self.name
+
+
+class Console(models.Model):
+    code = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Console"
+        verbose_name_plural = "6. Consoles"
+        ordering = ("-created_at",)
+
+    def __str__(self):
+        return self.code
+
+
+class Charge(models.Model):
+    shipment = models.ForeignKey("Shipment", related_name="charges", on_delete=models.CASCADE)
+    description = models.CharField(max_length=250)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    currency = models.CharField(max_length=10, default="USD")
+    payer = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Charge"
+        verbose_name_plural = "7. Charges"
+
+    def __str__(self):
+        return f"{self.shipment.ref or 'NoRef'} • {self.description} {self.amount} {self.currency}"
+
+
+class ShipmentComment(models.Model):
+    shipment = models.ForeignKey(
+        "Shipment",
+        on_delete=models.CASCADE,
+        related_name="comments",
+        verbose_name="Shipment"
+    )
+    author_name = models.CharField(
+        max_length=100,
+        verbose_name="Author",
+        editable=False
+    )
+    text = models.TextField(verbose_name="Comment")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        # Auto-fill author_name if we have the current user attached from admin
+        if not self.author_name and hasattr(self, "_current_user"):
+            self.author_name = (
+                self._current_user.get_full_name()
+                or self._current_user.username
+            )
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.author_name} → {self.shipment.ref}"
