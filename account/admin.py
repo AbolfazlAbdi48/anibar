@@ -39,7 +39,7 @@ class UserModelAdmin(UserAdmin):
 # -------------------------
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ("name", "email", "phone", "address")
+    list_display = ("name", "email", "phone", "address", "marketing_channel")
     search_fields = ("name", "email", "phone")
     ordering = ("name",)
 

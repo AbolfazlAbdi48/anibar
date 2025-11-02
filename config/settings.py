@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "import_export",
     "account",
-    "shipment_module",
+    'shipment_module.apps.ShipmentConfig',
     'django.contrib.humanize',
 ]
 
@@ -148,3 +148,5 @@ AUTH_USER_MODEL = "account.User"
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
 SILENCED_SYSTEM_CHECKS = ["security.W019"]
+
+MANAGER_PHONE = config("MANAGER_PHONE")
