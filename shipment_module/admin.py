@@ -9,7 +9,6 @@ from .models import (
     PolList,
     PodList,
     TermList,
-    Agent,
     Console,
     Charge,
     ShipmentComment,
@@ -44,15 +43,16 @@ class ShipmentAdmin(ImportExportModelAdmin):
     resource_class = ShipmentModelResource
     filter_horizontal = ("operators",)
     inlines = [ChargeInline, CommentInline]
+    autocomplete_fields = ['shipper', 'hawb_shipper', 'cnee', 'hawb_cnee']
 
     list_display = (
         "ref",
         "colored_priority_badge",
         "client",
         "sp",
+        "inq_replied",
         "confirmed",
         "confirm_date",
-        "inq_replied",
         "carrier",
         "agent",
         "console",
@@ -100,22 +100,21 @@ class ShipmentAdmin(ImportExportModelAdmin):
 
     search_help_text = "Search by Ref, Client, S/P, MAWB, HAWB, Shipper, Consignee, or Carrier"
     list_per_page = 50
-    readonly_fields = ("confirm_date", "transit_time", "manifest_download_link")
+    readonly_fields = ("transit_time", "manifest_download_link")
 
     fieldsets = (
         ("1. Basic Details", {
             "fields": (
                 "ref", "client", "sp", "pol", "pod",
-                "priority", "agent", "mode",
+                "priority", "agent", "mode", "first_gw", "first_cw", "term",
             )
         }),
         ("2. Cargo Details", {
             "fields": (
-                "confirmed", "confirm_date", "commodity", "pcs", "gw", "first_gw", "cw", "first_cw", "vol", "currency",
-                "via", "carrier", "term", "etdw", "etd", "eta",
+                "inq_replied", "confirmed", "confirm_date", "commodity", "pcs", "gw","cw", "vol", "currency",
+                "via", "first_master", "first_house", "etdw", "etd", "eta",
                 "transit_time", "console", "mawb", "hawb",
-                "first_master", "first_house", "manifest_no",
-                "shipper", "cnee", "hawb_shipper", "hawb_cnee", "operators", "inq_replied", "extra_charges", "manifest_download_link"
+                 "manifest_no", "carrier", "shipper", "cnee", "hawb_shipper", "hawb_cnee", "operators", "extra_charges", "manifest_download_link"
                 
             )
         }),
@@ -209,12 +208,6 @@ class TermListAdmin(admin.ModelAdmin):
     list_display = ("data",)
     search_fields = ("data",)
     ordering = ("data",)
-
-
-@admin.register(Agent)
-class AgentAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "code", "email", "phone")
-    search_fields = ("name", "code")
 
 
 @admin.register(Console)

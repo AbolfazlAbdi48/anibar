@@ -72,3 +72,17 @@ class Carrier(models.Model):
 
     def __str__(self):
         return self.name
+    
+    
+class Agent(models.Model):
+    name = models.CharField(max_length=200)
+    code = models.CharField(max_length=50, blank=True, null=True)
+    phone = models.CharField(max_length=50, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Agent"
+        verbose_name_plural = "6. Agents"
+
+    def __str__(self):
+        return self.name

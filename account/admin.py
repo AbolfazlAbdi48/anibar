@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from account.models import User, Customer, Consignee, Shipper, Carrier
+from account.models import User, Customer, Consignee, Shipper, Carrier, Agent
 
 
 # -------------------------
@@ -75,3 +75,8 @@ class CarrierAdmin(admin.ModelAdmin):
     list_display = ("name", "abbreviation", "national_id")
     search_fields = ("name", "abbreviation", "national_id")
     ordering = ("name",)
+
+@admin.register(Agent)
+class AgentAdmin(admin.ModelAdmin):
+    list_display = ("id", "name", "code", "email", "phone")
+    search_fields = ("name", "code")

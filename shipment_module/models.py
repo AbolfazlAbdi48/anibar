@@ -1,6 +1,6 @@
 from django.db import models
 from django.urls import reverse
-from account.models import User, Customer, Shipper, Consignee, Carrier
+from account.models import User, Customer, Shipper, Consignee, Carrier, Agent
 from django.utils import timezone
 from django.utils.html import format_html
 
@@ -72,7 +72,7 @@ class Shipment(models.Model):
     )
 
     # Agent relation
-    agent = models.ForeignKey("Agent", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Agent")
+    agent = models.ForeignKey(Agent, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Agent")
 
     # 4. Master / House (keep field names to avoid destructive rename; verbose names adjusted)
     mawb = models.CharField(max_length=255, verbose_name="Master", blank=True, null=True)  # was MAWB
@@ -90,9 +90,15 @@ class Shipment(models.Model):
     # 6. Term and mode
     term = models.ForeignKey(to='TermList', on_delete=models.CASCADE, verbose_name="Term", blank=True, null=True)
     MODE_CHOICES = [
-        ("marine", "Marine"),
-        ("air", "Aerial"),
-        ("train", "Train"),
+        ("air_single", "Air - Single"),
+        ("air_console", "Air - Console"),
+        ("sea_fcl", "Sea - FCL"),
+        ("sea_lcl", "Sea - LCL"),
+        ("sea_bb", "Sea - BB"),
+        ("sea_bulk", "Sea - Bulk"),
+        ("land_ltl", "Land - LTL"),
+        ("land_ftl", "Land - FTL"),
+        ("land_rail", "Land - Rail"),
     ]
 
     mode = models.CharField(
@@ -273,18 +279,7 @@ class TermList(models.Model):
     def __str__(self):
         return self.data
 
-class Agent(models.Model):
-    name = models.CharField(max_length=200)
-    code = models.CharField(max_length=50, blank=True, null=True)
-    phone = models.CharField(max_length=50, blank=True, null=True)
-    email = models.EmailField(blank=True, null=True)
 
-    class Meta:
-        verbose_name = "Agent"
-        verbose_name_plural = "5. Agents"
-
-    def __str__(self):
-        return self.name
 
 
 class Console(models.Model):
@@ -293,7 +288,7 @@ class Console(models.Model):
 
     class Meta:
         verbose_name = "Console"
-        verbose_name_plural = "6. Consoles"
+        verbose_name_plural = "5. Consoles"
         ordering = ("-created_at",)
 
     def __str__(self):
@@ -310,7 +305,7 @@ class Charge(models.Model):
 
     class Meta:
         verbose_name = "Charge"
-        verbose_name_plural = "7. Charges"
+        verbose_name_plural = "6. Charges"
 
     def __str__(self):
         return f"{self.shipment.ref or 'NoRef'} • {self.description} {self.amount} {self.currency}"
