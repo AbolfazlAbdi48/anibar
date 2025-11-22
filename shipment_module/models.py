@@ -252,7 +252,7 @@ class PolList(models.Model):
         verbose_name_plural = "2. Pols"
 
     def __str__(self):
-        return self.data
+        return str(self.data or "")
 
 
 class PodList(models.Model):
@@ -266,7 +266,7 @@ class PodList(models.Model):
         verbose_name_plural = "3. Pods"
 
     def __str__(self):
-        return self.data
+        return str(self.data or "")
 
 
 class TermList(models.Model):
@@ -277,7 +277,7 @@ class TermList(models.Model):
         verbose_name_plural = "4. Terms"
 
     def __str__(self):
-        return self.data
+        return str(self.data or "")
 
 
 
@@ -292,7 +292,7 @@ class Console(models.Model):
         ordering = ("-created_at",)
 
     def __str__(self):
-        return self.code
+        return str(self.data or "")
 
 
 class Charge(models.Model):
@@ -308,7 +308,12 @@ class Charge(models.Model):
         verbose_name_plural = "6. Charges"
 
     def __str__(self):
-        return f"{self.shipment.ref or 'NoRef'} • {self.description} {self.amount} {self.currency}"
+        ref = getattr(self.shipment, "ref", None) or "NoRef"
+        desc = self.description or ""
+        amount = self.amount or ""
+        currency = self.currency or ""
+        return f"{ref} • {desc} {amount} {currency}"
+
 
 
 class ShipmentComment(models.Model):
@@ -336,4 +341,6 @@ class ShipmentComment(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.author_name} → {self.shipment.ref}"
+        author = self.author_name or "Unknown"
+        ref = getattr(self.shipment, "ref", None) or "NoRef"
+        return f"{author} → {ref}"
