@@ -8,7 +8,7 @@ from django.utils.html import format_html
 # Create your models here.
 class Shipment(models.Model):
     # 1. Basic Details
-    ref = models.CharField(max_length=255, verbose_name="Ref.No.", blank=True, null=True, unique=True)
+    ref = models.CharField(max_length=20, verbose_name="Ref.No.", blank=True, null=True, unique=True)
 
     client = models.ForeignKey(
         to=Customer,
