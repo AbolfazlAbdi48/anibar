@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.urls import reverse
 from account.models import User, Customer, Shipper, Consignee, Carrier, Agent
 from django.utils import timezone
@@ -8,7 +8,7 @@ from django.utils.html import format_html
 # Create your models here.
 class Shipment(models.Model):
     # 1. Basic Details
-    ref = models.CharField(max_length=255, verbose_name="Ref.No.", blank=True, null=True)
+    ref = models.CharField(max_length=255, verbose_name="Ref.No.", blank=True, null=True, unique=True)
 
     client = models.ForeignKey(
         to=Customer,
@@ -207,20 +207,26 @@ class Shipment(models.Model):
     colored_priority_badge.short_description = "Priority"
 
     def save(self, *args, **kwargs):
-        # maintain your original ref generation logic
         if not self.ref:
             today = timezone.now().date()
             date_prefix = today.strftime("%y%m%d")
 
-            today_shipments = Shipment.objects.filter(ref__startswith=date_prefix).count()
-            counter = today_shipments + 1
+            with transaction.atomic():
+                last = Shipment.objects.filter(ref__startswith=date_prefix) \
+                                    .select_for_update() \
+                                    .order_by('-ref') \
+                                    .first()
+                if last:
+                    # get last 3 digits; works with existing data  (002, 015, 123)
+                    try:
+                        last_counter = int(last.ref[-3:])
+                    except ValueError:
+                        last_counter = 0
+                    counter = last_counter + 1
+                else:
+                    counter = 1
 
-            if counter <= 99:
-                suffix = f"{counter:02d}"
-            else:
-                suffix = f"{counter:03d}"
-
-            self.ref = f"{date_prefix}{suffix}"
+                self.ref = f"{date_prefix}{counter:03d}"
 
         if not getattr(self, "sp_id", None) and hasattr(self, "_current_user"):
             self.sp = self._current_user
@@ -292,7 +298,7 @@ class Console(models.Model):
         ordering = ("-created_at",)
 
     def __str__(self):
-        return str(self.data or "")
+        return str(self.code or "")
 
 
 class Charge(models.Model):
