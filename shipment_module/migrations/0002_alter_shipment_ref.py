@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='shipment',
             name='ref',
-            field=models.CharField(blank=True, max_length=255, null=True, unique=True, verbose_name='Ref.No.'),
+            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='Ref.No.'),
         ),
     ]
