@@ -298,7 +298,7 @@ class Console(models.Model):
         ordering = ("-created_at",)
 
     def __str__(self):
-        return str(self.data or "")
+        return str(self.code or "")
 
 
 class Charge(models.Model):
