@@ -209,7 +209,7 @@ class Shipment(models.Model):
     def save(self, *args, **kwargs):
         if not self.ref:
             today = timezone.now().date()
-            date_prefix = today.strftime("%y%m%d")
+            date_prefix = today.strftime("%y%m%d")  # e.g., "251129" (6 digits)
 
             with transaction.atomic():
                 last = Shipment.objects.filter(ref__startswith=date_prefix) \
@@ -217,16 +217,23 @@ class Shipment(models.Model):
                                     .order_by('-ref') \
                                     .first()
                 if last:
-                    # get last 3 digits; works with existing data  (002, 015, 123)
+                    # Extract counter from last ref (everything after the 6-digit date prefix)
+                    counter_str = last.ref[6:]  # Get everything after "YYMMDD"
                     try:
-                        last_counter = int(last.ref[-3:])
+                        last_counter = int(counter_str)
                     except ValueError:
                         last_counter = 0
                     counter = last_counter + 1
                 else:
                     counter = 1
 
-                self.ref = f"{date_prefix}{counter:03d}"
+                # Format counter as 2 digits (00-99), then 3 digits (100+)
+                if counter <= 99:
+                    counter_formatted = f"{counter:02d}"  # "00", "01", ..., "99"
+                else:
+                    counter_formatted = f"{counter:03d}"  # "100", "101", etc.
+
+                self.ref = f"{date_prefix}{counter_formatted}"
 
         if not getattr(self, "sp_id", None) and hasattr(self, "_current_user"):
             self.sp = self._current_user
