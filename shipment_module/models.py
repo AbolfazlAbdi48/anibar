@@ -46,6 +46,7 @@ class Shipment(models.Model):
     # inq_sent = models.BooleanField(default=False, verbose_name="INQ SENT")  # removed per your request
 
     inq_replied = models.BooleanField(default=False, verbose_name="INQ REPLIED")
+    invoice_deadline = models.BooleanField(default=False, verbose_name="Invoice Deadline")
 
     # Use 'confirmed' as the boolean (was named 'confirmation' previously)
     confirmed = models.BooleanField(default=False, verbose_name="Confirmed")

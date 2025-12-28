@@ -64,6 +64,7 @@ class ShipmentAdmin(ImportExportModelAdmin):
         "pol",
         "pod",
         "term",
+        "invoice_deadline",
         "extra_charges",
         "manifest_link",
     )
@@ -74,6 +75,7 @@ class ShipmentAdmin(ImportExportModelAdmin):
     list_filter = (
         "confirmed",
         "inq_replied",
+        "client",
         "carrier",
         "agent",
         "console",
@@ -106,7 +108,7 @@ class ShipmentAdmin(ImportExportModelAdmin):
         ("1. Basic Details", {
             "fields": (
                 "ref", "client", "sp", "pol", "pod",
-                "priority", "agent", "mode", "first_gw", "first_cw", "term",
+                "priority", "agent", "mode", "first_gw", "first_cw", "term","invoice_deadline"
             )
         }),
         ("2. Cargo Details", {

@@ -1,8 +1,30 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
-
 from account.models import User, Customer, Consignee, Shipper, Carrier, Agent
+from shipment_module.models import Shipment
+
+
+class ShipmentInline(admin.TabularInline):
+    model = Shipment
+    fk_name = "client"
+    extra = 0
+    can_delete = False
+    show_change_link = True
+
+    fields = (
+        "ref",
+        "confirmed",
+        "confirm_date",
+        "pol",
+        "pod",
+        "etd",
+        "eta",
+        "mode",
+        "priority",
+    )
+
+    readonly_fields = fields
 
 
 # -------------------------
@@ -43,6 +65,7 @@ class CustomerAdmin(admin.ModelAdmin):
     search_fields = ("name", "email", "phone")
     ordering = ("name",)
 
+    inlines = [ShipmentInline]
 
 # -------------------------
 # Consignee Admin
