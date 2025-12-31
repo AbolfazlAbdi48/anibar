@@ -76,7 +76,7 @@ class ConsigneeAdmin(admin.ModelAdmin):
     search_fields = ("name", "national_id", "email", "phone")
     ordering = ("name",)
     fieldsets = (
-        (None, {"fields": ("name", "national_id", "email", "phone", "address")}),
+        (None, {"fields": ("name", "national_id", "email","postal_code", "phone", "address")}),
     )
 
 

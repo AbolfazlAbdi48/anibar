@@ -115,7 +115,7 @@ class ShipmentAdmin(ImportExportModelAdmin):
             "fields": (
                 "inq_replied", "confirmed", "confirm_date", "commodity", "pcs", "gw","cw", "vol", "currency",
                 "via", "first_master", "first_house", "etdw", "etd", "eta",
-                "transit_time", "console", "mawb", "hawb",
+                "transit_time", "console", "mawb", "hawb","hscode",
                  "manifest_no", "carrier", "shipper", "cnee", "hawb_shipper", "hawb_cnee", "operators", "extra_charges", "manifest_download_link"
                 
             )
