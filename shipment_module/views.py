@@ -42,73 +42,61 @@ class ManifestView(LoginRequiredMixin, DetailView):
     # VOY
     # =========================
     def build_voy_line(self, shipment):
-        # 1) national id consignee master
-        cnee_national_id = shipment.cnee.national_id if shipment.cnee else ""
-
-        # 2) national id carrier
-        carrier_national_id = shipment.carrier.national_id if shipment.carrier else ""
-
-        # 3–4) two flights (derived, not DB fields)
         flight_1, flight_2 = self.get_flights(shipment)
-
-        # 5) manifest number
-        manifest_no = shipment.manifest_no or ""
-
+        
         return [
             "VOY",
-            cnee_national_id,
-            carrier_national_id,
-            flight_1,
-            flight_2,
-            "IRIKA",  # operator (fixed per sample)
-            self.format_date(shipment.eta),  # ETA (corrected)
+            shipment.cnee.national_id or "",
+            shipment.carrier.national_id or "",
+            flight_1, #1?
+            flight_2, #1?
+            #2?
+            self.format_date(shipment.eta) or "",
             "",
             "MFI",
             "1",
-            manifest_no,
+            shipment.manifest_no or "",
         ]
 
     # =========================
     # BOL
     # =========================
     def build_bol_line(self, shipment):
-        pol_airport = shipment.pol.airport_abbr if shipment.pol else ""
-        pol_country_abbr = shipment.pol.country_abbr if shipment.pol else ""
-        pol_country_name = shipment.pol.country_name if shipment.pol else ""
-
-        hawb = shipment.hawb or ""
-        mawb = shipment.mawb or ""
-
-        shipper_name = shipment.hawb_shipper.name if shipment.hawb_shipper else ""
-        cnee_national_id = shipment.hawb_cnee.national_id if shipment.hawb_cnee else ""
-        cnee_name_address = (
-            f"{shipment.hawb_cnee.name} {shipment.hawb_cnee.address}"
-            if shipment.hawb_cnee else ""
-        )
 
         return [
             "BOL",
-            hawb,                     # 6 HAWB
-            "", "",
-            "7",
-            pol_airport,              # 7 POL airline
-            pol_airport,              # 5 POL twice
-            pol_country_abbr,         # 8 country abbr
-            self.format_date(shipment.eta),  # 3 ETA fixed
+            shipment.hawb or "",
+            "10102122004", "10102122004",
+            shipment.pol.airport_abbr or "",              
+            shipment.pol.airport_abbr or "",
+            #2?
+            self.format_date(shipment.eta) or "",
+            "",
             "I",
             "S",
             "", "",
             "G",
-            "N",
-            mawb,                     # 9 MAWB
-            "", "",                   # 8 two empty cells
-            shipper_name,             # 10 shipper house
-            pol_country_name,         # 11 country name
+            "N","Y","FCL/FCL",
+            shipment.pol.country_abbr or "",
+            "","","","",
+            shipment.mawb or "",
+            "", "",
+            shipment.shipper.name or "",
+            shipment.pol.country_name or "",
             "",
-            cnee_national_id,         # 12 cnee national id
-            cnee_name_address,        # 13 cnee name + address
-            shipment.hscode or "",    # 14 HS code
-            shipment.commodity or "", # 15 commodity
+            shipment.cnee.national_id or "",
+            shipment.cnee or "",
+            "","","","","","","","","","NM",
+            shipment.hscode or "",
+            shipment.commodity or "",
+            shipment.pcs or "",
+            "CTN",
+            "CTN",
+            "BULK1234567", #12?
+            "1","1","0","1",
+            shipment.gw or "",
+            shipment.gw or "",
+            "0","0","0","0","Y","",""
         ]
 
     # =========================
@@ -117,10 +105,10 @@ class ManifestView(LoginRequiredMixin, DetailView):
     def build_ctr_line(self, shipment):
         return [
             "CTR",
-            "BULK1234567",             # 12 fixed house number
-            shipment.pcs or "",
-            shipment.pcs or "",
-            shipment.pcs or "",
+            "BULK1234567", #12?
+            "1",
+            "1",
+            "1",
         ]
 
     # =========================
@@ -129,7 +117,7 @@ class ManifestView(LoginRequiredMixin, DetailView):
     def build_con_line(self, shipment):
         return [
             "CON",
-            shipment.ref or "",
+            shipment.manifest_no or "",
             "NM",
             shipment.commodity or "",
             "N",
@@ -138,9 +126,8 @@ class ManifestView(LoginRequiredMixin, DetailView):
             "CTN",
             "CTN",
             shipment.pcs or "",
-            shipment.gw or "",         # 13 weight (1)
-            shipment.gw or "",         # 13 weight (2)
-            shipment.vol or "",        # 18 volume
+            shipment.gw or "",
+            shipment.vol or "",
             "N",
             "",
             "",
