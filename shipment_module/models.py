@@ -47,6 +47,8 @@ class Shipment(models.Model):
 
     inq_replied = models.BooleanField(default=False, verbose_name="INQ REPLIED")
     invoice_deadline = models.BooleanField(default=False, verbose_name="Invoice Deadline")
+    invoice_issued = models.BooleanField(default=False, verbose_name="Invoice Issued")
+    payment_done = models.BooleanField(default=False, verbose_name="Payment Done")
 
     # Use 'confirmed' as the boolean (was named 'confirmation' previously)
     confirmed = models.BooleanField(default=False, verbose_name="Confirmed")
@@ -181,6 +183,7 @@ class Shipment(models.Model):
         ("red", "Red"),
     ]
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default="green", verbose_name="Priority")
+    flight_number = models.CharField(null=True, blank=True, verbose_name="Flight Number")
 
     # Meta
     class Meta:

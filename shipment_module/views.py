@@ -4,6 +4,7 @@ from django.views.generic import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Shipment
 
+
 # Create your views here.
 def main_view(request):
     return redirect('/admin/')
@@ -12,6 +13,13 @@ def main_view(request):
 class InvoiceViewDetail(DetailView, LoginRequiredMixin):
     model = Shipment
     template_name = 'shipment/invoice_detail.html'
+
+
+def safe_get(obj, attr, default=""):
+    try:
+        return getattr(obj, attr, default) if obj else default
+    except AttributeError:
+        return default
 
 
 class ManifestView(LoginRequiredMixin, DetailView):
@@ -43,14 +51,14 @@ class ManifestView(LoginRequiredMixin, DetailView):
     # =========================
     def build_voy_line(self, shipment):
         flight_1, flight_2 = self.get_flights(shipment)
-        
+
         return [
             "VOY",
-            shipment.cnee.national_id or "",
-            shipment.carrier.national_id or "",
-            flight_1, #1?
-            flight_2, #1?
-            #2?
+            safe_get(shipment.cnee, "national_id"),
+            safe_get(shipment.carrier, "national_id"),
+            shipment.flight_number or "",
+            shipment.flight_number or "",
+            "IRIKA",
             self.format_date(shipment.eta) or "",
             "",
             "MFI",
@@ -67,36 +75,36 @@ class ManifestView(LoginRequiredMixin, DetailView):
             "BOL",
             shipment.hawb or "",
             "10102122004", "10102122004",
-            shipment.pol.airport_abbr or "",              
             shipment.pol.airport_abbr or "",
-            #2?
+            shipment.pol.airport_abbr or "",
+            "IRIKA", "IRIKA",
             self.format_date(shipment.eta) or "",
             "",
             "I",
             "S",
             "", "",
             "G",
-            "N","Y","FCL/FCL",
+            "N", "Y", "FCL/FCL",
             shipment.pol.country_abbr or "",
-            "","","","",
+            "", "", "", "",
             shipment.mawb or "",
             "", "",
-            shipment.shipper.name or "",
+            safe_get(shipment.hawb_shipper, "name"),
             shipment.pol.country_name or "",
             "",
-            shipment.cnee.national_id or "",
-            shipment.cnee or "",
-            "","","","","","","","","","NM",
+            safe_get(shipment.hawb_cnee, "national_id"),
+            shipment.hawb_cnee or "",
+            "", "", "", "", "", "", "", "", "", "NM",
             shipment.hscode or "",
             shipment.commodity or "",
             shipment.pcs or "",
             "CTN",
             "CTN",
-            "BULK1234567", #12?
-            "1","1","0","1",
+            "BULK1234567",  # 12?
+            "1", "1", "0", "1",
             shipment.gw or "",
             shipment.gw or "",
-            "0","0","0","0","Y","",""
+            "0", "0", "0", "0", "Y", "", ""
         ]
 
     # =========================
@@ -105,7 +113,7 @@ class ManifestView(LoginRequiredMixin, DetailView):
     def build_ctr_line(self, shipment):
         return [
             "CTR",
-            "BULK1234567", #12?
+            "BULK1234567",  # 12?
             "1",
             "1",
             "1",

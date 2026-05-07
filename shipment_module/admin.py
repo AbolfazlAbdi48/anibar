@@ -3,7 +3,6 @@ from django.urls import reverse
 from import_export.admin import ImportExportModelAdmin
 from django.utils.html import format_html
 
-
 from .models import (
     Shipment,
     PolList,
@@ -34,7 +33,6 @@ class CommentInline(admin.TabularInline):
     can_delete = True
 
 
-
 # -------------------------------
 # Shipment Admin
 # -------------------------------
@@ -53,19 +51,19 @@ class ShipmentAdmin(ImportExportModelAdmin):
         "inq_replied",
         "confirmed",
         "confirm_date",
+        "gw",
+        "pol",
+        "pod",
+        "etd",
+        "eta",
+        "mawb",
+        "hawb",
         "carrier",
         "agent",
         "console",
-        "mawb",
-        "hawb",
-        "etd",
-        "eta",
         "transit_time",
-        "pol",
-        "pod",
         "term",
         "invoice_deadline",
-        "extra_charges",
         "manifest_link",
     )
 
@@ -85,6 +83,9 @@ class ShipmentAdmin(ImportExportModelAdmin):
         "priority",
         "eta",
         "sp",
+        "invoice_deadline",
+        "invoice_issued",
+        "payment_done",
     )
 
     search_fields = (
@@ -108,21 +109,25 @@ class ShipmentAdmin(ImportExportModelAdmin):
         ("1. Basic Details", {
             "fields": (
                 "ref", "client", "sp", "pol", "pod",
-                "priority", "agent", "mode", "first_gw", "first_cw", "term","invoice_deadline"
+                "priority", "agent", "mode", "flight_number", "first_gw", "first_cw", "term",
             )
         }),
         ("2. Cargo Details", {
             "fields": (
-                "inq_replied", "confirmed", "confirm_date", "commodity", "pcs", "gw","cw", "vol", "currency",
+                "inq_replied", "confirmed", "confirm_date", "commodity", "pcs", "gw", "cw", "vol", "currency",
                 "via", "first_master", "first_house", "etdw", "etd", "eta",
-                "transit_time", "console", "mawb", "hawb","hscode",
-                 "manifest_no", "carrier", "shipper", "cnee", "hawb_shipper", "hawb_cnee", "operators", "extra_charges", "manifest_download_link"
-                
+                "transit_time", "console", "mawb", "hawb", "hscode",
+                "manifest_no", "carrier", "shipper", "cnee", "hawb_shipper", "hawb_cnee", "operators",
+                "manifest_download_link"
+
+            )
+        }),
+        ("3. Invoice", {
+            "fields": (
+                "invoice_deadline", "invoice_issued", "payment_done", "extra_charges",
             )
         }),
     )
-
-    
 
     # store current request for comment inline to use
     def get_form(self, request, obj=None, **kwargs):
@@ -138,6 +143,7 @@ class ShipmentAdmin(ImportExportModelAdmin):
             color,
             obj.get_priority_display(),
         )
+
     colored_priority_badge.short_description = "Priority"
 
     # prefill S/P
@@ -163,12 +169,13 @@ class ShipmentAdmin(ImportExportModelAdmin):
             return "-"
         url = reverse("shipment:manifest-detail", args=[obj.pk])
         return format_html(
-        '<a href="{}" download '
-        'style="color:#0073aa; font-weight:bold; text-decoration:underline;">'
-        'Download Manifest'
-        '</a>',
-        url
+            '<a href="{}" download '
+            'style="color:#0073aa; font-weight:bold; text-decoration:underline;">'
+            'Download Manifest'
+            '</a>',
+            url
         )
+
     manifest_link.short_description = "Manifest"
 
     # === 2. DOWNLOAD BUTTON ON EDIT PAGE ===
@@ -185,6 +192,7 @@ class ShipmentAdmin(ImportExportModelAdmin):
             '</div>',
             url
         )
+
     manifest_download_link.short_description = ""
 
 
