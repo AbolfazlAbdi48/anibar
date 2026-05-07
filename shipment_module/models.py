@@ -183,7 +183,7 @@ class Shipment(models.Model):
         ("red", "Red"),
     ]
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default="green", verbose_name="Priority")
-    flight_number = models.CharField(max_length=255, null=True, blank=True, verbose_name="Flight Number")
+    flight_number = models.CharField(max_length=200, null=True, blank=True, verbose_name="Flight Number")
 
     # Meta
     class Meta:
