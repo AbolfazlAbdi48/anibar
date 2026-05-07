@@ -47,8 +47,8 @@ class Shipment(models.Model):
 
     inq_replied = models.BooleanField(default=False, verbose_name="INQ REPLIED")
     invoice_deadline = models.BooleanField(default=False, verbose_name="Invoice Deadline")
-    invoice_issued = models.BooleanField(default=False, verbose_name="Invoice Issued")
-    payment_done = models.BooleanField(default=False, verbose_name="Payment Done")
+    invoice_issued = models.BooleanField(default=False, null=True, verbose_name="Invoice Issued")
+    payment_done = models.BooleanField(default=False, null=True, verbose_name="Payment Done")
 
     # Use 'confirmed' as the boolean (was named 'confirmation' previously)
     confirmed = models.BooleanField(default=False, verbose_name="Confirmed")
