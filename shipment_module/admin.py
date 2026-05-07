@@ -84,8 +84,8 @@ class ShipmentAdmin(ImportExportModelAdmin):
         "eta",
         "sp",
         "invoice_deadline",
-        # "invoice_issued",
-        # "payment_done",
+        "invoice_issued",
+        "payment_done",
     )
 
     search_fields = (
@@ -124,7 +124,7 @@ class ShipmentAdmin(ImportExportModelAdmin):
         }),
         ("3. Invoice", {
             "fields": (
-                # "invoice_deadline", "invoice_issued", "payment_done", "extra_charges",
+                "invoice_deadline", "invoice_issued", "payment_done", "extra_charges",
             )
         }),
     )
