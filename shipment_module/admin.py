@@ -109,13 +109,13 @@ class ShipmentAdmin(ImportExportModelAdmin):
         ("1. Basic Details", {
             "fields": (
                 "ref", "client", "sp", "pol", "pod",
-                "priority", "agent", "mode", "flight_number", "first_gw", "first_cw", "term",
+                "priority", "agent", "mode", "first_gw", "first_cw", "term",
             )
         }),
         ("2. Cargo Details", {
             "fields": (
                 "inq_replied", "confirmed", "confirm_date", "commodity", "pcs", "gw", "cw", "vol", "currency",
-                "via", "first_master", "first_house", "etdw", "etd", "eta",
+                "via", "first_master", "first_house", "flight_number", "etdw", "etd", "eta",
                 "transit_time", "console", "mawb", "hawb", "hscode",
                 "manifest_no", "carrier", "shipper", "cnee", "hawb_shipper", "hawb_cnee", "operators",
                 "manifest_download_link"
