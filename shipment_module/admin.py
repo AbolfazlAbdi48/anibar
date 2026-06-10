@@ -50,21 +50,23 @@ class ShipmentAdmin(ImportExportModelAdmin):
         "sp",
         "inq_replied",
         "confirmed",
-        "confirm_date",
-        "gw",
+        "mode",
         "pol",
         "pod",
+        "gw",
+        "cw",
+        "term",
         "etd",
         "eta",
+        "console",
         "mawb",
         "hawb",
         "carrier",
         "agent",
-        "console",
         "transit_time",
-        "term",
         "invoice_deadline",
         "manifest_link",
+        "confirm_date",
     )
 
     # only confirmed is editable in list
@@ -74,6 +76,7 @@ class ShipmentAdmin(ImportExportModelAdmin):
         "confirmed",
         "inq_replied",
         "client",
+        "mode",
         "carrier",
         "agent",
         "console",
@@ -109,12 +112,12 @@ class ShipmentAdmin(ImportExportModelAdmin):
         ("1. Basic Details", {
             "fields": (
                 "ref", "client", "sp", "pol", "pod",
-                "priority", "agent", "mode", "first_gw", "first_cw", "term",
+                "priority", "agent", "mode", "first_gw", "first_cw", "term", "inq_replied", "confirmed", "confirm_date",
             )
         }),
         ("2. Cargo Details", {
             "fields": (
-                "inq_replied", "confirmed", "confirm_date", "commodity", "pcs", "gw", "cw", "vol", "currency",
+                "commodity", "pcs", "gw", "cw", "vol", "currency",
                 "via", "first_master", "first_house", "flight_number", "etdw", "etd", "eta",
                 "transit_time", "console", "mawb", "hawb", "hscode",
                 "manifest_no", "carrier", "shipper", "cnee", "hawb_shipper", "hawb_cnee", "operators",

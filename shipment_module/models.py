@@ -45,14 +45,14 @@ class Shipment(models.Model):
     # If you still need inq_sent, keep it before running migrations.
     # inq_sent = models.BooleanField(default=False, verbose_name="INQ SENT")  # removed per your request
 
-    inq_replied = models.BooleanField(default=False, verbose_name="INQ REPLIED")
+    inq_replied = models.BooleanField(default=False, verbose_name="RPL")
     invoice_deadline = models.BooleanField(default=False, verbose_name="Invoice Deadline")
     invoice_issued = models.BooleanField(default=False, verbose_name="Invoice Issued")
     payment_done = models.BooleanField(default=False, verbose_name="Payment Done")
 
     # Use 'confirmed' as the boolean (was named 'confirmation' previously)
-    confirmed = models.BooleanField(default=False, verbose_name="Confirmed")
-    confirm_date = models.DateTimeField(blank=True, null=True, verbose_name="Confirmation Date")
+    confirmed = models.BooleanField(default=False, verbose_name="CFM")
+    confirm_date = models.DateField(blank=True, null=True, verbose_name="CFM Date")
 
     via = models.CharField(max_length=255, null=True, blank=True, verbose_name="VIA")
 

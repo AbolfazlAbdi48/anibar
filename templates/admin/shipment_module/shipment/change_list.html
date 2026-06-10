@@ -1,0 +1,72 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_list %}
+<style>
+    .custom-filter-wrapper {
+        margin-bottom: 16px;
+    }
+
+    #toggle-admin-filters {
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    #admin-filter-section {
+        padding: 12px;
+        border: 1px solid var(--border-color, #ddd);
+        border-radius: 8px;
+        background: var(--body-bg, #fff);
+    }
+
+    #admin-filter-section #changelist-filter {
+        position: static;
+        width: auto;
+        margin: 0;
+        background: transparent;
+    }
+</style>
+
+
+{% block filters %}
+    {% if cl.has_filters %}
+        <div class="custom-filter-wrapper">
+
+            <button type="button" id="toggle-admin-filters" class="button">
+                Filter
+            </button>
+
+            <div id="admin-filter-section" style="display: none; margin-top: 12px;">
+                <div id="changelist-filter">
+                    <h2>{% translate 'Filter' %}</h2>
+                    {% if cl.preserved_filters %}
+                        <h3 id="changelist-filter-clear">
+                            <a href="?{% if cl.is_facets_optional or cl.has_active_filters %}_facets={{ cl.add_facets }}{% endif %}">
+                                {% translate "Clear all filters" %}
+                            </a>
+                        </h3>
+                    {% endif %}
+
+                    {% for spec in cl.filter_specs %}
+                        {% admin_list_filter cl spec %}
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const btn = document.getElementById("toggle-admin-filters");
+                const section = document.getElementById("admin-filter-section");
+
+                if (!btn || !section) return;
+
+                btn.addEventListener("click", function () {
+                    const isHidden = section.style.display === "none";
+                    section.style.display = isHidden ? "block" : "none";
+                    btn.textContent = isHidden ? "Hide Filters" : "Filter";
+                });
+            });
+        </script>
+    {% endif %}
+{% endblock %}
