@@ -160,7 +160,7 @@ class Shipment(models.Model):
     manifest_no = models.CharField(max_length=255, null=True, blank=True, verbose_name="Manifest No")
 
     hscode = models.CharField(max_length=50, blank=True, null=True, verbose_name="HS Code")
-    extra_charges = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name="Extra Charges")
+    extra_charges = models.BigIntegerField(blank=True, null=True, verbose_name="Extra Charges")
 
     operators = models.ManyToManyField(User, blank=True, related_name="operator_shipments", verbose_name="Operators")
 
