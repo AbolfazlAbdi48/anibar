@@ -79,7 +79,7 @@ class Shipment(models.Model):
 
     # 4. Master / House (keep field names to avoid destructive rename; verbose names adjusted)
     mawb = models.CharField(max_length=255, verbose_name="Master", blank=True, null=True)  # was MAWB
-    hawb = models.CharField(max_length=255, verbose_name="House", blank=True, null=True)   # was HAWB
+    hawb = models.CharField(max_length=255, verbose_name="House", blank=True, null=True)  # was HAWB
 
     # new first master/house fields (appear under VIA)
     first_master = models.CharField(max_length=255, verbose_name="First Master", blank=True, null=True)
@@ -160,7 +160,8 @@ class Shipment(models.Model):
     manifest_no = models.CharField(max_length=255, null=True, blank=True, verbose_name="Manifest No")
 
     hscode = models.CharField(max_length=50, blank=True, null=True, verbose_name="HS Code")
-    extra_charges = models.BigIntegerField(blank=True, null=True, verbose_name="Extra Charges")
+    extra_charges = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True,
+                                        verbose_name="Extra Charges")
 
     operators = models.ManyToManyField(User, blank=True, related_name="operator_shipments", verbose_name="Operators")
 
@@ -170,9 +171,11 @@ class Shipment(models.Model):
     airfreight = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     pickup = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     custom_clearance = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
-    do_clearance_ika = models.DecimalField("D/O + Clearance IKA (IRR)", max_digits=15, decimal_places=0, null=True, blank=True)
+    do_clearance_ika = models.DecimalField("D/O + Clearance IKA (IRR)", max_digits=15, decimal_places=0, null=True,
+                                           blank=True)
     transfer_fee = models.DecimalField("Transfer Fee (2%)", max_digits=12, decimal_places=2, null=True, blank=True)
-    other_charges = models.DecimalField("Other Charges (S/AWB, AAI, AMS, AWB/PCA)", max_digits=12, decimal_places=2, null=True, blank=True)
+    other_charges = models.DecimalField("Other Charges (S/AWB, AAI, AMS, AWB/PCA)", max_digits=12, decimal_places=2,
+                                        null=True, blank=True)
     total_usd = models.DecimalField("Total (USD)", max_digits=12, decimal_places=2, null=True, blank=True)
     grand_total_usd = models.DecimalField("Grand Total (USD)", max_digits=12, decimal_places=2, null=True, blank=True)
 
@@ -207,7 +210,9 @@ class Shipment(models.Model):
     def colored_priority_badge(self):
         colors = {"green": "#6cc24a", "yellow": "#ffd43b", "red": "#ff4d4f"}
         color = colors.get(self.priority, "#ddd")
-        return format_html('<span style="padding:3px 8px;border-radius:6px;background:{};">{}</span>', color, self.get_priority_display())
+        return format_html('<span style="padding:3px 8px;border-radius:6px;background:{};">{}</span>', color,
+                           self.get_priority_display())
+
     colored_priority_badge.short_description = "Priority"
 
     def save(self, *args, **kwargs):
@@ -217,9 +222,9 @@ class Shipment(models.Model):
 
             with transaction.atomic():
                 last = Shipment.objects.filter(ref__startswith=date_prefix) \
-                                    .select_for_update() \
-                                    .order_by('-ref') \
-                                    .first()
+                    .select_for_update() \
+                    .order_by('-ref') \
+                    .first()
                 if last:
                     # Extract counter from last ref (everything after the 6-digit date prefix)
                     counter_str = last.ref[6:]  # Get everything after "YYMMDD"
@@ -297,8 +302,6 @@ class TermList(models.Model):
         return str(self.data or "")
 
 
-
-
 class Console(models.Model):
     code = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -332,7 +335,6 @@ class Charge(models.Model):
         return f"{ref} • {desc} {amount} {currency}"
 
 
-
 class ShipmentComment(models.Model):
     shipment = models.ForeignKey(
         "Shipment",
@@ -352,8 +354,8 @@ class ShipmentComment(models.Model):
         # Auto-fill author_name if we have the current user attached from admin
         if not self.author_name and hasattr(self, "_current_user"):
             self.author_name = (
-                self._current_user.get_full_name()
-                or self._current_user.username
+                    self._current_user.get_full_name()
+                    or self._current_user.username
             )
         super().save(*args, **kwargs)
 
