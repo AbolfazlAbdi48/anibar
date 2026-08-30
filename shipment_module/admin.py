@@ -62,7 +62,7 @@ class ShipmentAdmin(ImportExportModelAdmin):
         "mawb",
         "hawb",
         "carrier",
-        "agent",
+        "short_agent_name",
         "transit_time",
         "invoice_deadline",
         "manifest_link",
@@ -142,7 +142,27 @@ class ShipmentAdmin(ImportExportModelAdmin):
 
         # Convert to string to support both string fields and model instances
         full_name = str(obj.client)
-        max_length = 6
+        max_length = 4
+
+        # Truncate if the name exceeds the maximum length
+        if len(full_name) > max_length:
+            truncated = full_name[:max_length] + "..."
+            # Hover tooltip shows the full name
+            return format_html('<span title="{}">{}</span>', full_name, truncated)
+
+        return full_name
+
+    @admin.display(
+        description="Agent",  # Column header title in the admin table
+        ordering="agent",  # Allows sorting by the actual client field
+    )
+    def short_agent_name(self, obj):
+        if not obj.client:
+            return "-"
+
+        # Convert to string to support both string fields and model instances
+        full_name = str(obj.client)
+        max_length = 5
 
         # Truncate if the name exceeds the maximum length
         if len(full_name) > max_length:
