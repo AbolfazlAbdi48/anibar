@@ -161,7 +161,7 @@ class ShipmentAdmin(ImportExportModelAdmin):
             return "-"
 
         # Convert to string to support both string fields and model instances
-        full_name = str(obj.client)
+        full_name = str(obj.agent)
         max_length = 5
 
         # Truncate if the name exceeds the maximum length
