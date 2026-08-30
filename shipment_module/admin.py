@@ -36,7 +36,7 @@ class CommentInline(admin.TabularInline):
 # -------------------------------
 # Shipment Admin
 # -------------------------------
-@admin.register(Shipment)
+
 class ShipmentAdmin(ImportExportModelAdmin):
     resource_class = ShipmentModelResource
     filter_horizontal = ("operators",)
@@ -46,7 +46,7 @@ class ShipmentAdmin(ImportExportModelAdmin):
     list_display = (
         "ref",
         "colored_priority_badge",
-        "client",
+        "short_client_name",
         "sp",
         "inq_replied",
         "confirmed",
@@ -132,6 +132,26 @@ class ShipmentAdmin(ImportExportModelAdmin):
         }),
     )
 
+    @admin.display(
+        description="Client",  # Column header title in the admin table
+        ordering="client",  # Allows sorting by the actual client field
+    )
+    def short_client_name(self, obj):
+        if not obj.client:
+            return "-"
+
+        # Convert to string to support both string fields and model instances
+        full_name = str(obj.client)
+        max_length = 6
+
+        # Truncate if the name exceeds the maximum length
+        if len(full_name) > max_length:
+            truncated = full_name[:max_length] + "..."
+            # Hover tooltip shows the full name
+            return format_html('<span title="{}">{}</span>', full_name, truncated)
+
+        return full_name
+
     # store current request for comment inline to use
     def get_form(self, request, obj=None, **kwargs):
         self._current_request = request
@@ -198,33 +218,44 @@ class ShipmentAdmin(ImportExportModelAdmin):
 
     manifest_download_link.short_description = ""
 
+    class Media:
+        # Load custom CSS and JS for collapsing list_filter sidebar
+        css = {
+            'all': ('admin/css/filter-toggle.css',)
+        }
+        js = ('admin/js/filter-toggle.js',)
+
 
 # -------------------------------
 # Supporting Models
 # -------------------------------
-@admin.register(PolList)
+
 class PolListAdmin(admin.ModelAdmin):
     list_display = ("data", "country_name", "country_abbr", "airport_abbr")
     search_fields = ("data", "country_name", "airport_abbr")
     ordering = ("data",)
 
 
-@admin.register(PodList)
 class PodListAdmin(admin.ModelAdmin):
     list_display = ("data", "country_name", "country_abbr", "airport_abbr")
     search_fields = ("data", "country_name", "airport_abbr")
     ordering = ("data",)
 
 
-@admin.register(TermList)
 class TermListAdmin(admin.ModelAdmin):
     list_display = ("data",)
     search_fields = ("data",)
     ordering = ("data",)
 
 
-@admin.register(Console)
 class ConsoleAdmin(admin.ModelAdmin):
     list_display = ("id", "code", "created_at")
     search_fields = ("code",)
     ordering = ("-created_at",)
+
+
+admin.site.register(Shipment, ShipmentAdmin)
+admin.site.register(PolList, PolListAdmin)
+admin.site.register(PodList, PodListAdmin)
+admin.site.register(TermList, TermListAdmin)
+admin.site.register(Console, ConsoleAdmin)

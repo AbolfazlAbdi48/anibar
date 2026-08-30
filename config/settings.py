@@ -34,7 +34,7 @@ ALLOWED_HOSTS = config(
 INSTALLED_APPS = [
     "admin_interface",
     "colorfield",
-    "django.contrib.admin",
+    "config.admin.CustomAdminConfig",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",

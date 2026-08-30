@@ -1,0 +1,225 @@
+/* Admin toolbar buttons */
+.admin-list-tools {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.admin-list-tools button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 36px;
+    padding: 8px 16px;
+    margin: 0;
+    color: #ffffff !important;
+    background-color: #417690;
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 20px;
+    text-decoration: none;
+    transition:
+        background-color 0.2s ease,
+        transform 0.1s ease,
+        box-shadow 0.2s ease;
+}
+
+.admin-list-tools button:hover {
+    background-color: #2b566b;
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.16);
+}
+
+.admin-list-tools button:active {
+    transform: scale(0.98);
+}
+
+.admin-list-tools button:focus-visible {
+    outline: 3px solid rgba(65, 118, 144, 0.3);
+    outline-offset: 2px;
+}
+
+.admin-list-tools button.has-filters,
+.admin-list-tools button.has-search {
+    background-color: #218838;
+}
+
+.admin-list-tools button.is-open {
+    background-color: #205067;
+}
+
+/* Hide the search toolbar after JavaScript initializes */
+#changelist.search-toggle-enabled #toolbar {
+    display: none;
+}
+
+/* Display the search toolbar when requested */
+#changelist.search-toggle-enabled #toolbar.search-panel-open {
+    display: block !important;
+    margin: 0 0 15px;
+    padding: 12px 14px;
+    background-color: var(--darkened-bg, #f8f8f8);
+    border: 1px solid var(--hairline-color, #e8e8e8);
+    border-radius: 6px;
+    box-sizing: border-box;
+    animation: search-panel-enter 0.2s ease-out;
+}
+
+/* Improve the search form layout */
+#changelist #toolbar form {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+}
+
+#changelist #toolbar form > div {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+}
+
+#changelist #toolbar #searchbar {
+    flex: 1 1 280px;
+    min-width: 180px;
+    max-width: 520px;
+    min-height: 36px;
+    padding: 7px 10px;
+    border: 1px solid var(--border-color, #cccccc);
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+#changelist #toolbar #searchbar:focus {
+    border-color: #417690;
+    outline: 3px solid rgba(65, 118, 144, 0.15);
+}
+
+#changelist #toolbar input[type="submit"] {
+    min-height: 36px;
+    padding: 7px 16px;
+    border-radius: 5px;
+}
+
+/* Force the result table to use the available width */
+#changelist.filtered {
+    display: block !important;
+    width: 100% !important;
+}
+
+#changelist.filtered #changelist-form {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Filter backdrop */
+.filter-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease;
+}
+
+.filter-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Filter drawer */
+#changelist-filter {
+    position: fixed !important;
+    top: 0 !important;
+    right: -360px !important;
+    z-index: 9999 !important;
+    display: block !important;
+    width: 320px !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 55px 20px 20px !important;
+    overflow-y: auto !important;
+    background-color: var(--body-bg, #ffffff) !important;
+    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.15) !important;
+    box-sizing: border-box !important;
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+#changelist-filter.filter-drawer-open {
+    right: 0 !important;
+}
+
+/* Filter drawer close button */
+.filter-close-btn {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    color: #333333;
+    background-color: #e0e0e0;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.filter-close-btn:hover {
+    background-color: #d0d0d0;
+}
+
+@keyframes search-panel-enter {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-list-tools {
+        width: 100%;
+    }
+
+    .admin-list-tools button {
+        flex: 1 1 auto;
+    }
+
+    #changelist-filter {
+        right: -100vw !important;
+        width: min(90vw, 320px) !important;
+    }
+
+    #changelist-filter.filter-drawer-open {
+        right: 0 !important;
+    }
+
+    #changelist #toolbar #searchbar {
+        flex-basis: 100%;
+        width: 100%;
+        max-width: none;
+    }
+}

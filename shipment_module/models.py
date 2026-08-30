@@ -271,7 +271,7 @@ class PolList(models.Model):
 
     class Meta:
         verbose_name = "Pol"
-        verbose_name_plural = "2. Pols"
+        verbose_name_plural = "7. Pols"
 
     def __str__(self):
         return str(self.data or "")
@@ -285,7 +285,7 @@ class PodList(models.Model):
 
     class Meta:
         verbose_name = "Pod"
-        verbose_name_plural = "3. Pods"
+        verbose_name_plural = "8. Pods"
 
     def __str__(self):
         return str(self.data or "")
@@ -308,7 +308,7 @@ class Console(models.Model):
 
     class Meta:
         verbose_name = "Console"
-        verbose_name_plural = "5. Consoles"
+        verbose_name_plural = "9. Consoles"
         ordering = ("-created_at",)
 
     def __str__(self):
@@ -325,7 +325,7 @@ class Charge(models.Model):
 
     class Meta:
         verbose_name = "Charge"
-        verbose_name_plural = "6. Charges"
+        verbose_name_plural = "10. Charges"
 
     def __str__(self):
         ref = getattr(self.shipment, "ref", None) or "NoRef"

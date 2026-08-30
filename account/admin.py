@@ -30,7 +30,6 @@ class ShipmentInline(admin.TabularInline):
 # -------------------------
 # User Admin
 # -------------------------
-@admin.register(User)
 class UserModelAdmin(UserAdmin):
     fieldsets = (
         (None, {"fields": ("username", "password")}),
@@ -59,7 +58,6 @@ class UserModelAdmin(UserAdmin):
 # -------------------------
 # Customer Admin
 # -------------------------
-@admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ("name", "email", "phone", "address", "marketing_channel")
     search_fields = ("name", "email", "phone")
@@ -67,23 +65,22 @@ class CustomerAdmin(admin.ModelAdmin):
 
     inlines = [ShipmentInline]
 
+
 # -------------------------
 # Consignee Admin
 # -------------------------
-@admin.register(Consignee)
 class ConsigneeAdmin(admin.ModelAdmin):
     list_display = ("name", "national_id", "email", "phone")
     search_fields = ("name", "national_id", "email", "phone")
     ordering = ("name",)
     fieldsets = (
-        (None, {"fields": ("name", "national_id", "email","postal_code", "phone", "address")}),
+        (None, {"fields": ("name", "national_id", "email", "postal_code", "phone", "address")}),
     )
 
 
 # -------------------------
 # Shipper Admin
 # -------------------------
-@admin.register(Shipper)
 class ShipperAdmin(admin.ModelAdmin):
     list_display = ("name", "email", "phone", "address")
     search_fields = ("name", "email", "phone")
@@ -93,13 +90,20 @@ class ShipperAdmin(admin.ModelAdmin):
 # -------------------------
 # Carrier Admin
 # -------------------------
-@admin.register(Carrier)
 class CarrierAdmin(admin.ModelAdmin):
     list_display = ("name", "abbreviation", "national_id")
     search_fields = ("name", "abbreviation", "national_id")
     ordering = ("name",)
 
-@admin.register(Agent)
+
 class AgentAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "code", "email", "phone")
     search_fields = ("name", "code")
+
+
+admin.site.register(User, UserModelAdmin)
+admin.site.register(Customer, CustomerAdmin)
+admin.site.register(Consignee, ConsigneeAdmin)
+admin.site.register(Shipper, ShipperAdmin)
+admin.site.register(Carrier, CarrierAdmin)
+admin.site.register(Agent, AgentAdmin)
