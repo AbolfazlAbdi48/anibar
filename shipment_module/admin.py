@@ -157,7 +157,7 @@ class ShipmentAdmin(ImportExportModelAdmin):
         ordering="agent",  # Allows sorting by the actual client field
     )
     def short_agent_name(self, obj):
-        if not obj.client:
+        if not obj.agent:
             return "-"
 
         # Convert to string to support both string fields and model instances
