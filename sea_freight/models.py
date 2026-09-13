@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 from django.utils import timezone
 
-from account.models import Agent
+from account.models import Agent, Customer, User
 
 
 class SeaShipment(models.Model):
@@ -25,13 +25,13 @@ class SeaShipment(models.Model):
 
     # --- مدل های مشترک ---
     client = models.ForeignKey(
-        "account.Customer",
+        to=Customer,
         on_delete=models.PROTECT,
         related_name="sea_shipments",
         verbose_name="Client",
     )
     sp = models.ForeignKey(
-        "account.User",
+        to=User,
         on_delete=models.PROTECT,
         related_name="sea_shipments",
         verbose_name="S/P",
@@ -425,7 +425,7 @@ class SeaShipment(models.Model):
     )
 
     operators = models.ManyToManyField(
-        "account.User",
+        to=User,
         blank=True,
         related_name="operators",
         verbose_name="Operators",
