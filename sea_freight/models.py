@@ -3,6 +3,8 @@ from django.db import models
 # Create your models here.
 from django.utils import timezone
 
+from account.models import Agent
+
 
 class SeaShipment(models.Model):
     """
@@ -64,7 +66,7 @@ class SeaShipment(models.Model):
         null=True,
     )
     agent = models.ForeignKey(
-        "account.Agent",
+        to=Agent,
         on_delete=models.PROTECT,
         related_name="sea_shipments",
         verbose_name="Agent",
