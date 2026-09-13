@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "account",
     'shipment_module.apps.ShipmentConfig',
     'django.contrib.humanize',
+    'sea_freight'
 ]
 
 MIDDLEWARE = [
