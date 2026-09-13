@@ -161,11 +161,15 @@ class SeaShipment(models.Model):
         max_length=100,
         verbose_name="Vessel",
         help_text="نام کشتی",
+        null=True,
+        blank=True
     )
     voyage_no = models.CharField(
         max_length=30,
         verbose_name="Voyage No",
         help_text="شماره سفر",
+        null=True,
+        blank=True
     )
 
     # --- بارنامه ها ---
@@ -257,6 +261,8 @@ class SeaShipment(models.Model):
         max_length=50,
         verbose_name="Packages",
         help_text="تعداد و نوع بسته بندی مثل: 2 WOODEN CASES",
+        null=True,
+        blank=True
     )
     marks = models.CharField(
         max_length=100,
@@ -268,6 +274,8 @@ class SeaShipment(models.Model):
     commodity = models.TextField(
         verbose_name="Commodity",
         help_text="شرح کالا",
+        null=True,
+        blank=True
     )
     hscode = models.CharField(
         max_length=20,
@@ -280,11 +288,15 @@ class SeaShipment(models.Model):
         decimal_places=3,
         verbose_name="G.W (Kg)",
         help_text="وزن ناخالص",
+        null=True,
+        blank=True
     )
     vol = models.DecimalField(
         max_digits=10,
         decimal_places=4,
         verbose_name="Volume (CBM)",
+        null=True,
+        blank=True
     )
     cw = models.DecimalField(
         max_digits=10,

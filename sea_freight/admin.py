@@ -159,7 +159,10 @@ class SeaShipmentAdmin(admin.ModelAdmin):
                       "#27ae60" if obj.payment_done else "#e74c3c")
 
     def view_on_site(self, obj):
-        return reverse("admin:shipment_seashipment_change", args=(obj.pk,))
+        return reverse(
+            f"admin:{obj._meta.app_label}_{obj._meta.model_name}_change",
+            args=(obj.pk,)
+        )
 
     # ------------------------------------------------------------------
     # Actions
