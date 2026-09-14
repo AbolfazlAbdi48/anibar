@@ -124,7 +124,11 @@ class SeaShipmentAdmin(admin.ModelAdmin):
         pol = obj.pol
         pod = obj.pod
         if pol and pod:
-            return f"{pol} <i style='color:#999;'>▶</i> {pod}"
+            return format_html(
+                '{} <span style="color: #999; margin: 0 4px; font-size: 11px;">▶</span> {}',
+                pol,
+                pod,
+            )
         return "—"
 
     @admin.display(description="Vessel / Voyage")

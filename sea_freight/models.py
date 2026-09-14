@@ -470,6 +470,10 @@ class SeaShipment(models.Model):
 
     def save(self, *args, **kwargs):
         self.calculate_totals()
+
+        if self.confirmed and not self.cfm_date:
+            self.cfm_date = timezone.localtime(timezone.now())
+
         super().save(*args, **kwargs)
 
     def __str__(self):
