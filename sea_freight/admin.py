@@ -42,7 +42,7 @@ class SeaShipmentAdmin(admin.ModelAdmin):
     )
     list_display_links = ("ref",)
     list_editable = ("mode", "freight_term")
-    list_select_related = ("client", "pol", "pod", "term", "agent")
+    list_select_related = ("client", "pol", "pod", "term", "agent", "mbl_shipper")
 
     list_filter = (
         "mode", "movement", "bl_release", "freight_term",
@@ -56,7 +56,8 @@ class SeaShipmentAdmin(admin.ModelAdmin):
         "ref", "mbl_no", "hbl_no", "booking_no", "vessel_name",
         "voyage_no", "container_no", "client__name",
     )
-    autocomplete_fields = ("client", "sp", "pol", "pod", "term", "console", "agent")
+    autocomplete_fields = (
+    "client", "sp", "pol", "pod", "term", "console", "agent", "mbl_shipper", "mbl_cnee", "hbl_shipper", "hbl_cnee")
     filter_horizontal = ("operators",)
     inlines = (SeaContainerInline,)
     date_hierarchy = "etd"
