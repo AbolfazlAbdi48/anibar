@@ -55,7 +55,6 @@ class SeaShipmentAdmin(admin.ModelAdmin):
     search_fields = (
         "ref", "mbl_no", "hbl_no", "booking_no", "vessel_name",
         "voyage_no", "container_no", "client__name",
-        "hbl_shipper", "hbl_cnee", "mbl_shipper", "mbl_cnee",
     )
     autocomplete_fields = ("client", "sp", "pol", "pod", "term", "console", "agent")
     filter_horizontal = ("operators",)
