@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 from django.utils import timezone
 
-from account.models import Agent, Customer, User
+from account.models import Agent, Customer, User, Shipper, Consignee
 
 
 class SeaShipment(models.Model):
@@ -202,25 +202,37 @@ class SeaShipment(models.Model):
     )
 
     # --- طرفین بارنامه ---
-    mbl_shipper = models.TextField(
+    mbl_shipper = models.ForeignKey(
+        to=Shipper,
+        related_name="sea_freight_mbl_shipper",
+        on_delete=models.PROTECT,
+        verbose_name="MAWB Shipper",
         blank=True,
         null=True,
-        verbose_name="MBL Shipper",
     )
-    mbl_cnee = models.TextField(
+    mbl_cnee = models.ForeignKey(
+        to=Consignee,
+        related_name="sea_freight_mbl_cnee",
+        on_delete=models.PROTECT,
+        verbose_name="MAWB Cnee",
         blank=True,
         null=True,
-        verbose_name="MBL Consignee",
     )
-    hbl_shipper = models.TextField(
+    hbl_shipper = models.ForeignKey(
+        to=Shipper,
+        related_name="sea_freight_hbl_shipper",
+        on_delete=models.PROTECT,
+        verbose_name="MAWB Shipper",
         blank=True,
         null=True,
-        verbose_name="HBL Shipper",
     )
-    hbl_cnee = models.TextField(
+    hbl_cnee = models.ForeignKey(
+        to=Consignee,
+        related_name="sea_freight_hbl_cnee",
+        on_delete=models.PROTECT,
+        verbose_name="MAWB Cnee",
         blank=True,
         null=True,
-        verbose_name="HBL Consignee",
     )
     notify_party = models.TextField(
         blank=True,
