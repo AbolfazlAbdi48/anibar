@@ -41,7 +41,8 @@ class ShipmentAdmin(ImportExportModelAdmin):
     resource_class = ShipmentModelResource
     filter_horizontal = ("operators",)
     inlines = [ChargeInline, CommentInline]
-    autocomplete_fields = ['shipper', 'hawb_shipper', 'cnee', 'hawb_cnee']
+    autocomplete_fields = ['client', 'sp', 'pod', 'pol', 'agent', 'term', 'console', 'shipper', 'hawb_shipper', 'cnee',
+                           'hawb_cnee']
 
     list_display = (
         "ref",

@@ -57,7 +57,7 @@ class SeaShipmentAdmin(admin.ModelAdmin):
         "voyage_no", "container_no", "client__name",
     )
     autocomplete_fields = (
-    "client", "sp", "pol", "pod", "term", "console", "agent", "mbl_shipper", "mbl_cnee", "hbl_shipper", "hbl_cnee")
+        "client", "sp", "pol", "pod", "term", "console", "agent", "mbl_shipper", "mbl_cnee", "hbl_shipper", "hbl_cnee")
     filter_horizontal = ("operators",)
     inlines = (SeaContainerInline,)
     date_hierarchy = "etd"
