@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 
 # Create your models here.
 from django.utils import timezone
@@ -19,6 +19,8 @@ class SeaShipment(models.Model):
     ref = models.CharField(
         max_length=20,
         unique=True,
+        blank=True,
+        null=True,
         verbose_name="Ref",
         help_text="شماره رفرانس داخلی پرونده",
     )
@@ -37,14 +39,14 @@ class SeaShipment(models.Model):
         verbose_name="S/P",
     )
     pol = models.ForeignKey(
-        "shipment_module.PolList",
+        "sea_freight.SeaPolList",
         on_delete=models.PROTECT,
         related_name="sea_shipments_pol",
         verbose_name="P.O.L",
         help_text="Port of Loading - بندر بارگیری",
     )
     pod = models.ForeignKey(
-        "shipment_module.PodList",
+        "sea_freight.SeaPodList",
         on_delete=models.PROTECT,
         related_name="sea_shipments_pod",
         verbose_name="P.O.D",
@@ -56,14 +58,6 @@ class SeaShipment(models.Model):
         related_name="sea_shipments",
         verbose_name="Term",
         help_text="Incoterms",
-    )
-    console = models.ForeignKey(
-        "shipment_module.Console",
-        on_delete=models.PROTECT,
-        related_name="sea_shipments",
-        verbose_name="Console",
-        blank=True,
-        null=True,
     )
     agent = models.ForeignKey(
         to=Agent,
@@ -79,56 +73,13 @@ class SeaShipment(models.Model):
         ("fcl", "FCL"),
         ("lcl", "LCL"),
         ("bb", "Break Bulk"),
+        ("b", "Bulk"),
     ]
     mode = models.CharField(
         max_length=3,
         choices=SHIPMENT_MODE,
         default="fcl",
         verbose_name="Mode",
-    )
-
-    MOVEMENT_TYPE = [
-        ("cy-cy", "CY / CY"),
-        ("cy-cfs", "CY / CFS"),
-        ("cfs-cy", "CFS / CY"),
-        ("cfs-cfs", "CFS / CFS"),
-        ("dr-cy", "Door / CY"),
-        ("dr-dr", "Door / Door"),
-    ]
-    movement = models.CharField(
-        max_length=10,
-        choices=MOVEMENT_TYPE,
-        default="cy-cy",
-        verbose_name="Movement",
-        help_text="نوع سرویس حمل",
-    )
-
-    place_of_receipt = models.CharField(
-        max_length=100,
-        blank=True,
-        null=True,
-        verbose_name="Place of Receipt",
-        help_text="محل تحویل بار به کشتیرانی",
-    )
-    final_destination = models.CharField(
-        max_length=100,
-        blank=True,
-        null=True,
-        verbose_name="Final Destination",
-        help_text="مقصد نهایی (مثل گمرک شهریار)",
-    )
-
-    BL_RELEASE_TYPE = [
-        ("original", "Original B/L"),
-        ("telex", "Telex Release / Surrendered"),
-        ("waybill", "Express / Sea Waybill"),
-    ]
-    bl_release = models.CharField(
-        max_length=10,
-        choices=BL_RELEASE_TYPE,
-        default="original",
-        verbose_name="B/L Release",
-        help_text="نوع آزادسازی بارنامه",
     )
 
     priority = models.CharField(
@@ -155,23 +106,6 @@ class SeaShipment(models.Model):
     # ============================================================
     #  ۲) CARGO & VESSEL DETAILS
     # ============================================================
-
-    # --- کشتی و سفر ---
-    vessel_name = models.CharField(
-        max_length=100,
-        verbose_name="Vessel",
-        help_text="نام کشتی",
-        null=True,
-        blank=True
-    )
-    voyage_no = models.CharField(
-        max_length=30,
-        verbose_name="Voyage No",
-        help_text="شماره سفر",
-        null=True,
-        blank=True
-    )
-
     # --- بارنامه ها ---
     mbl_no = models.CharField(
         max_length=50,
@@ -200,29 +134,11 @@ class SeaShipment(models.Model):
         null=True,
         verbose_name="Manifest No",
     )
-
-    # --- طرفین بارنامه ---
-    mbl_shipper = models.ForeignKey(
-        to=Shipper,
-        related_name="sea_freight_mbl_shipper",
-        on_delete=models.PROTECT,
-        verbose_name="MAWB Shipper",
-        blank=True,
-        null=True,
-    )
-    mbl_cnee = models.ForeignKey(
-        to=Consignee,
-        related_name="sea_freight_mbl_cnee",
-        on_delete=models.PROTECT,
-        verbose_name="MAWB Cnee",
-        blank=True,
-        null=True,
-    )
     hbl_shipper = models.ForeignKey(
         to=Shipper,
         related_name="sea_freight_hbl_shipper",
         on_delete=models.PROTECT,
-        verbose_name="MAWB Shipper",
+        verbose_name="HBL Shipper",
         blank=True,
         null=True,
     )
@@ -230,7 +146,7 @@ class SeaShipment(models.Model):
         to=Consignee,
         related_name="sea_freight_hbl_cnee",
         on_delete=models.PROTECT,
-        verbose_name="MAWB Cnee",
+        verbose_name="HBL Cnee",
         blank=True,
         null=True,
     )
@@ -238,12 +154,6 @@ class SeaShipment(models.Model):
         blank=True,
         null=True,
         verbose_name="Notify Party",
-    )
-    delivery_agent = models.TextField(
-        blank=True,
-        null=True,
-        verbose_name="Delivery Agent",
-        help_text="نماینده تحویل‌دهنده بار در مقصد",
     )
 
     # --- کانتینر ---
@@ -253,13 +163,6 @@ class SeaShipment(models.Model):
         null=True,
         verbose_name="Container No",
         help_text="شماره کانتینر (چندتایی با کاما)",
-    )
-    container_type = models.CharField(
-        max_length=10,
-        blank=True,
-        null=True,
-        verbose_name="Container Type",
-        help_text="مثل 20GP / 40HC / 40NOR",
     )
     seal_no = models.CharField(
         max_length=50,
@@ -276,25 +179,6 @@ class SeaShipment(models.Model):
         null=True,
         blank=True
     )
-    marks = models.CharField(
-        max_length=100,
-        blank=True,
-        null=True,
-        verbose_name="Marks & Numbers",
-        help_text="مثل N/M",
-    )
-    commodity = models.TextField(
-        verbose_name="Commodity",
-        help_text="شرح کالا",
-        null=True,
-        blank=True
-    )
-    hscode = models.CharField(
-        max_length=20,
-        blank=True,
-        null=True,
-        verbose_name="HS Code",
-    )
     gw = models.DecimalField(
         max_digits=12,
         decimal_places=3,
@@ -310,21 +194,8 @@ class SeaShipment(models.Model):
         null=True,
         blank=True
     )
-    cw = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        blank=True,
-        null=True,
-        verbose_name="Chargeable W / R.T",
-        help_text="وزن محاسباتی - Revenue Ton (برای LCL)",
-    )
 
     # --- تاریخ ها ---
-    etd = models.DateField(
-        blank=True,
-        null=True,
-        verbose_name="ETD",
-    )
     atd = models.DateField(
         blank=True,
         null=True,
@@ -335,11 +206,6 @@ class SeaShipment(models.Model):
         blank=True,
         null=True,
         verbose_name="ETA",
-    )
-    ata = models.DateField(
-        blank=True,
-        null=True,
-        verbose_name="ATA",
     )
 
     # ============================================================
@@ -425,6 +291,13 @@ class SeaShipment(models.Model):
         editable=False,
         verbose_name="Total (USD)",
     )
+    carrier = models.ForeignKey(
+        "sea_freight.SeaCarrier",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name="Carrier"
+    )
     grand_total_usd = models.DecimalField(
         max_digits=14,
         decimal_places=2,
@@ -481,6 +354,34 @@ class SeaShipment(models.Model):
         self.grand_total_usd = self.total_usd + (self.extra_charges or 0)
 
     def save(self, *args, **kwargs):
+        if not self.ref:
+            today = timezone.now().date()
+            date_prefix = today.strftime("%y%m%d")  # e.g., "251129" (6 digits)
+
+            with transaction.atomic():
+                last = SeaShipment.objects.filter(ref__startswith=date_prefix) \
+                    .select_for_update() \
+                    .order_by('-ref') \
+                    .first()
+                if last:
+                    # Extract counter from last ref (everything after the 6-digit date prefix)
+                    counter_str = last.ref[6:]  # Get everything after "YYMMDD"
+                    try:
+                        last_counter = int(counter_str)
+                    except ValueError:
+                        last_counter = 0
+                    counter = last_counter + 1
+                else:
+                    counter = 1
+
+                # Format counter as 2 digits (00-99), then 3 digits (100+)
+                if counter <= 99:
+                    counter_formatted = f"{counter:02d}"  # "00", "01", ..., "99"
+                else:
+                    counter_formatted = f"{counter:03d}"  # "100", "101", etc.
+
+                self.ref = f"{date_prefix}{counter_formatted}"
+
         self.calculate_totals()
 
         if self.confirmed and not self.cfm_date:
@@ -495,6 +396,48 @@ class SeaShipment(models.Model):
         verbose_name = "Sea Shipment"
         verbose_name_plural = "1. Sea Shipments"
         ordering = ["-created_at"]
+
+
+class SeaPolList(models.Model):
+    data = models.CharField(max_length=255, verbose_name="Sea Pol", blank=True, null=True)
+    country_name = models.CharField(max_length=100, blank=True, null=True, verbose_name="Country Name")
+    country_abbr = models.CharField(max_length=5, blank=True, null=True, verbose_name="Country Abbr")
+    airport_abbr = models.CharField(max_length=5, blank=True, null=True, verbose_name="Airport Abbr")
+
+    class Meta:
+        verbose_name = "Pol"
+        verbose_name_plural = "7. Sea Pols"
+
+    def __str__(self):
+        return str(self.data or "")
+
+
+class SeaPodList(models.Model):
+    data = models.CharField(max_length=255, verbose_name="Sea Pod", blank=True, null=True)
+    country_name = models.CharField(max_length=100, blank=True, null=True, verbose_name="Country Name")
+    country_abbr = models.CharField(max_length=5, blank=True, null=True, verbose_name="Country Abbr")
+    airport_abbr = models.CharField(max_length=5, blank=True, null=True, verbose_name="Airport Abbr")
+
+    class Meta:
+        verbose_name = "Pod"
+        verbose_name_plural = "8. Sea Pods"
+
+    def __str__(self):
+        return str(self.data or "")
+
+
+class SeaCarrier(models.Model):
+    name = models.CharField(max_length=255, verbose_name="Sea Carrier Name")
+    national_id = models.CharField(max_length=20, blank=True, null=True, verbose_name="Iran Office Address")
+    abbreviation = models.CharField(max_length=10, blank=True, null=True, verbose_name="Iran Office Tel")
+    description = models.TextField(blank=True, null=True, verbose_name="Description")
+
+    class Meta:
+        verbose_name = "Carrier"
+        verbose_name_plural = "5. Carriers"
+
+    def __str__(self):
+        return self.name
 
 
 class Container(models.Model):

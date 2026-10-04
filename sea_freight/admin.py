@@ -1,17 +1,8 @@
-# shipment/admin.py - Sea Freight Module
-# ------------------------------------------------------------------
-# Assumptions:
-#  - Shared models live in app "account": Client, SP, Pol, Pod, Term,
-#    Console, Agent, Operator
-#  - If any shared model has a different class name in your project,
-#    just update the "to=" references below.
-# ------------------------------------------------------------------
-
 from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 
-from .models import SeaShipment, Container
+from .models import SeaShipment, Container, SeaPolList, SeaPodList, SeaCarrier
 
 
 def _badge(text, color):
@@ -35,17 +26,17 @@ class SeaShipmentAdmin(admin.ModelAdmin):
     # List View
     # ------------------------------------------------------------------
     list_display = (
-        "ref", "client", "mode", "pol_pod", "vessel_voyage",
-        "gw", "vol", "release_badge", "freight_term",
+        "ref", "client", "mode", "pol_pod",
+        "gw", "vol", "freight_term",
         "cfm_status", "invoice_status", "payment_status",
         "grand_total_usd", "created_at",
     )
     list_display_links = ("ref",)
     list_editable = ("mode", "freight_term")
-    list_select_related = ("client", "pol", "pod", "term", "agent", "mbl_shipper")
+    list_select_related = ("client", "pol", "pod", "term", "agent")
 
     list_filter = (
-        "mode", "movement", "bl_release", "freight_term",
+        "mode", "freight_term",
         "confirmed", "invoice_issued", "payment_done",
         ("pol", admin.RelatedOnlyFieldListFilter),
         ("pod", admin.RelatedOnlyFieldListFilter),
@@ -53,14 +44,13 @@ class SeaShipmentAdmin(admin.ModelAdmin):
     )
 
     search_fields = (
-        "ref", "mbl_no", "hbl_no", "booking_no", "vessel_name",
-        "voyage_no", "container_no", "client__name",
+        "ref", "mbl_no", "hbl_no", "booking_no",
+        "container_no", "client__name",
     )
     autocomplete_fields = (
-        "client", "sp", "pol", "pod", "term", "console", "agent", "mbl_shipper", "mbl_cnee", "hbl_shipper", "hbl_cnee")
+        "client", "sp", "pol", "pod", "term", "agent", "hbl_shipper", "hbl_cnee")
     filter_horizontal = ("operators",)
     inlines = (SeaContainerInline,)
-    date_hierarchy = "etd"
     save_on_top = True
     list_per_page = 25
 
@@ -72,24 +62,18 @@ class SeaShipmentAdmin(admin.ModelAdmin):
             "fields": (
                 "ref", "client", "sp",
                 "pol", "pod",
-                "place_of_receipt", "final_destination",
-                "mode", "movement", "term",
-                "console", "agent", "priority",
-                "bl_release", "booking_no",
+                "mode", "term", "agent", "priority",
                 "inq_replied", "confirmed", "cfm_date",
             ),
         }),
-        ("Cargo & Vessel Details", {
+        ("Cargo Details", {
             "fields": (
-                "vessel_name", "voyage_no",
-                "mbl_no", "hbl_no", "manifest_no",
-                "mbl_shipper", "mbl_cnee",
+                "mbl_no", "hbl_no", "booking_no", "carrier",
                 "hbl_shipper", "hbl_cnee",
-                "notify_party", "delivery_agent",
-                "container_type",
-                "pcs", "marks", "commodity", "hscode",
-                "gw", "vol", "cw",
-                "etd", "atd", "eta", "ata",
+                "notify_party",
+                "pcs",
+                "gw", "vol",
+                "atd", "eta",
             ),
         }),
         ("Invoices & Charges", {
@@ -113,7 +97,6 @@ class SeaShipmentAdmin(admin.ModelAdmin):
         "mark_confirmed",
         "mark_invoice_issued",
         "mark_payment_done",
-        "mark_telex_release",
     )
 
     # ------------------------------------------------------------------
@@ -130,22 +113,6 @@ class SeaShipmentAdmin(admin.ModelAdmin):
                 pod,
             )
         return "—"
-
-    @admin.display(description="Vessel / Voyage")
-    def vessel_voyage(self, obj):
-        if obj.vessel_name:
-            return f"{obj.vessel_name} / {obj.voyage_no}"
-        return "—"
-
-    @admin.display(description="Release")
-    def release_badge(self, obj):
-        labels = {
-            "original": ("Original B/L", "#4a90d9"),
-            "telex": ("Telex Release", "#f39c12"),
-            "waybill": ("Sea Waybill", "#27ae60"),
-        }
-        text, color = labels.get(obj.bl_release, ("—", "#bbb"))
-        return _badge(text, color)
 
     @admin.display(description="CFM")
     def cfm_status(self, obj):
@@ -182,11 +149,6 @@ class SeaShipmentAdmin(admin.ModelAdmin):
         updated = queryset.update(payment_done=True)
         self.message_user(request, f"{updated} shipment(s) paid.")
 
-    @admin.action(description="Mark selected as Telex Release")
-    def mark_telex_release(self, request, queryset):
-        updated = queryset.update(bl_release="telex")
-        self.message_user(request, f"{updated} shipment(s) set to Telex Release.")
-
     # ------------------------------------------------------------------
     # Permissions / Overrides
     # ------------------------------------------------------------------
@@ -207,3 +169,24 @@ class ContainerAdmin(admin.ModelAdmin):
     list_select_related = ("shipment",)
     search_fields = ("container_no", "seal_no", "shipment__ref")
     list_filter = ("container_type",)
+
+
+@admin.register(SeaPolList)
+class SeaPolListAdmin(admin.ModelAdmin):
+    list_display = ("data", "country_name", "country_abbr", "airport_abbr")
+    search_fields = ("data", "country_name", "airport_abbr")
+    ordering = ("data",)
+
+
+@admin.register(SeaPodList)
+class SeaPodListAdmin(admin.ModelAdmin):
+    list_display = ("data", "country_name", "country_abbr", "airport_abbr")
+    search_fields = ("data", "country_name", "airport_abbr")
+    ordering = ("data",)
+
+
+@admin.register(SeaCarrier)
+class CarrierAdmin(admin.ModelAdmin):
+    list_display = ("name", "abbreviation", "national_id", "description")
+    search_fields = ("name", "abbreviation", "national_id", "description")
+    ordering = ("name",)
