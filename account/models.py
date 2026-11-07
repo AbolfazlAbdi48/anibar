@@ -33,6 +33,8 @@ class Shipper(models.Model):
     name = models.CharField(max_length=255, verbose_name=_('Name'))
     address = models.TextField(blank=True, null=True, verbose_name=_('Address'))
     country = models.CharField(max_length=100, blank=True, null=True, verbose_name=_('Country'))
+    national_id = models.CharField(max_length=20, blank=True, null=True, verbose_name="National ID")
+    postal_code = models.CharField(max_length=20, blank=True, null=True, verbose_name="Postal Code")
     phone = models.CharField(max_length=50, blank=True, null=True, verbose_name=_('Phone Number'))
     email = models.EmailField(max_length=100, blank=True, null=True, verbose_name=_('Email'))
 

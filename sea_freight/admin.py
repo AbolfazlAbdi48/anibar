@@ -48,7 +48,7 @@ class SeaShipmentAdmin(admin.ModelAdmin):
         "container_no", "client__name",
     )
     autocomplete_fields = (
-        "client", "sp", "pol", "pod", "term", "agent", "hbl_shipper", "hbl_cnee")
+        "client", "sp", "pol", "pod", "term", "agent", "hbl_shipper", "hbl_cnee", "notify_party")
     filter_horizontal = ("operators",)
     inlines = (SeaContainerInline,)
     save_on_top = True
@@ -70,7 +70,7 @@ class SeaShipmentAdmin(admin.ModelAdmin):
             "fields": (
                 "mbl_no", "hbl_no", "booking_no", "carrier",
                 "hbl_shipper", "hbl_cnee",
-                "notify_party",
+                "notify_party", "agent_ref",
                 "pcs",
                 "gw", "vol",
                 "atd", "eta",

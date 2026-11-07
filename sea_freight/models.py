@@ -146,14 +146,23 @@ class SeaShipment(models.Model):
         to=Consignee,
         related_name="sea_freight_hbl_cnee",
         on_delete=models.PROTECT,
-        verbose_name="HBL Cnee",
+        verbose_name="HBL Consignee",
         blank=True,
         null=True,
     )
-    notify_party = models.TextField(
+    notify_party = models.ForeignKey(
+        to=Consignee,
+        related_name="sea_freight_notify_party",
+        on_delete=models.PROTECT,
+        verbose_name="Notify Party",
         blank=True,
         null=True,
-        verbose_name="Notify Party",
+    )
+    agent_ref = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="Agent Reference",
     )
 
     # --- کانتینر ---
@@ -174,8 +183,7 @@ class SeaShipment(models.Model):
     # --- مشخصات بار ---
     pcs = models.CharField(
         max_length=50,
-        verbose_name="Packages",
-        help_text="تعداد و نوع بسته بندی مثل: 2 WOODEN CASES",
+        verbose_name="BL Description",
         null=True,
         blank=True
     )
@@ -200,7 +208,6 @@ class SeaShipment(models.Model):
         blank=True,
         null=True,
         verbose_name="ATD",
-        help_text="تاریخ واقعی حرکت (Shipped on Board)",
     )
     eta = models.DateField(
         blank=True,
