@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 
-from .models import SeaShipment, Container, SeaPolList, SeaPodList, SeaCarrier
+from .models import SeaShipment, SeaPolList, SeaPodList, SeaCarrier
 
 
 def _badge(text, color):
@@ -11,13 +11,6 @@ def _badge(text, color):
         'color:#fff; background:{};">{}</span>',
         color, text
     )
-
-
-class SeaContainerInline(admin.TabularInline):
-    model = Container
-    extra = 0
-    fields = ("container_no", "container_type", "seal_no", "gw", "vol")
-    show_change_link = True
 
 
 @admin.register(SeaShipment)
@@ -50,7 +43,6 @@ class SeaShipmentAdmin(admin.ModelAdmin):
     autocomplete_fields = (
         "client", "sp", "pol", "pod", "term", "agent", "hbl_shipper", "hbl_cnee", "notify_party")
     filter_horizontal = ("operators",)
-    inlines = (SeaContainerInline,)
     save_on_top = True
     list_per_page = 25
 
@@ -162,13 +154,6 @@ class SeaShipmentAdmin(admin.ModelAdmin):
         obj.calculate_totals()
         super().save_model(request, obj, form, change)
 
-
-@admin.register(Container)
-class ContainerAdmin(admin.ModelAdmin):
-    list_display = ("container_no", "container_type", "seal_no", "shipment", "gw", "vol")
-    list_select_related = ("shipment",)
-    search_fields = ("container_no", "seal_no", "shipment__ref")
-    list_filter = ("container_type",)
 
 
 @admin.register(SeaPolList)
